@@ -41,7 +41,7 @@
 #' @export
 makeBaggingWrapper = function(learner, bw.iters = 10L, bw.replace = TRUE, bw.size, bw.feats = 1) {
 
-  learner = checkLearner(learner, type=c("classif", "regr"))
+  learner = checkLearner(learner, type=c("classif", "regr", "costsens"))
   bw.iters = asInt(bw.iters, lower = 1L)
   assertFlag(bw.replace)
   if (missing(bw.size)) {
@@ -65,7 +65,9 @@ makeBaggingWrapper = function(learner, bw.iters = 10L, bw.replace = TRUE, bw.siz
   x = makeBaseWrapper(id, learner, packs, par.set = ps, par.vals = pv, cl = "BaggingWrapper")
   x = switch(x$type,
     "classif" = addProperties(x, "prob"),
-    "regr" = addProperties(x, "se"))
+    "regr" = addProperties(x, "se"),
+    "costsens" = x
+  )
   return(x)
 }
 
@@ -98,13 +100,14 @@ trainLearner.BaggingWrapper = function(.learner, .task, .subset, .weights = NULL
 #' @export
 predictLearner.BaggingWrapper = function(.learner, .model, .newdata, ...) {
   models = getBaggingModels(.model)
-  g = if (.learner$type == "classif") as.character else identity
+  g = if (.learner$type %in% c("classif", "costsens")) as.character else identity
+
   p = asMatrixCols(lapply(models, function(m) {
     nd = .newdata[, m$features, drop = FALSE]
     g(predict(m, newdata = nd, ...)$data$response)
   }))
   if (.learner$predict.type == "response") {
-    g = if (.learner$type == "classif")
+    g = if (.learner$type %in% c("classif", "costsens"))
       as.factor(apply(p, 1L, computeMode))
     else
       rowMeans(p)

@@ -27,7 +27,7 @@
 #'   Name of the target variable.
 #'   For survival analysis these are the names of the survival time and event columns,
 #'   so it has length 2.
-#' @param costs [\code{data.frame}]\cr
+#' @param costs [\code{matrix} | \code{data.frame}]\cr
 #'   A numeric matrix or data frame containing the costs of misclassification.
 #'   We assume the general case of observation specific costs.
 #'   This means we have n rows, corresponding to the observations, in the same order as \code{data}.

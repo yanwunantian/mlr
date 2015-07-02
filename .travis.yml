@@ -2,10 +2,6 @@ language: r
 env:
     global:
         - _R_CHECK_TIMINGS_=0
-branches:
-    only:
-        - master
-        - multiFidPlugIn
 apt_packages:
     - r-cran-rjava
 r_github_packages:

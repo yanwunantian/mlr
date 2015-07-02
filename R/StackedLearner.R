@@ -149,8 +149,8 @@ trainLearner.StackedLearner = function(.learner, .task, .subset, ...) {
   # reduce to subset we want to train ensemble on
   .task = subsetTask(.task, subset = .subset)
   # init prob result matrix, where base learners store predictions
-  probs = makeDataFrame(.task$task.desc$size, ncol = length(bls), col.types = "numeric",
-    col.names = ids)
+  td = getTaskDescription(.task)
+  probs = makeDataFrame(getTaskSize(.task), ncol = length(bls), col.types = "numeric", col.names = ids)
   switch(.learner$method,
     average = averageBaseLearners(.learner, .task),
     stack.nocv = stackNoCV(.learner, .task),
@@ -263,8 +263,9 @@ averageBaseLearners = function(learner, task) {
 
 # stacking where we predict the training set in-sample, then super-learn on that
 stackNoCV = function(learner, task) {
-  type = ifelse(task$task.desc$type == "regr", "regr",
-    ifelse(length(task$task.desc$class.levels) == 2L, "classif", "multiclassif"))
+  td = getTaskDescription(task)
+  type = ifelse(td$type == "regr", "regr",
+    ifelse(length(td$class.levels) == 2L, "classif", "multiclassif"))
   bls = learner$base.learners
   use.feat = learner$use.feat
   base.models = probs = vector("list", length(bls))
@@ -286,16 +287,16 @@ stackNoCV = function(learner, task) {
   }
 
   # now fit the super learner for predicted_probs --> target
-  probs[[task$task.desc$target]] = getTaskTargets(task)
+  tn = getTaskTargetNames(task)
+  probs[[tn]] = getTaskTargets(task)
   if (use.feat) {
     # add data with normal features
     feat = getTaskData(task)
-    feat = feat[, !colnames(feat)%in%task$task.desc$target, drop = FALSE]
+    feat = feat[, colnames(feat) %nin% tn, drop = FALSE]
     probs = cbind(probs, feat)
-    super.task = makeSuperLearnerTask(learner, data = probs,
-      target = task$task.desc$target)
+    super.task = makeSuperLearnerTask(learner, data = probs, target = tn)
   } else {
-    super.task = makeSuperLearnerTask(learner, data = probs, target = task$task.desc$target)
+    super.task = makeSuperLearnerTask(learner, data = probs, target = tn)
   }
   super.model = train(learner$super.learner, super.task)
   list(method = "stack.no.cv", base.models = base.models,
@@ -304,8 +305,9 @@ stackNoCV = function(learner, task) {
 
 # stacking where we crossval the training set with the base learners, then super-learn on that
 stackCV = function(learner, task) {
-  type = ifelse(task$task.desc$type == "regr", "regr",
-    ifelse(length(task$task.desc$class.levels) == 2L, "classif", "multiclassif"))
+  td = getTaskDescription(task)
+  type = ifelse(td$type == "regr", "regr",
+    ifelse(length(td$class.levels) == 2L, "classif", "multiclassif"))
   bls = learner$base.learners
   use.feat = learner$use.feat
   # cross-validate all base learners and get a prob vector for the whole dataset for each learner
@@ -327,7 +329,7 @@ stackCV = function(learner, task) {
   }
 
   # add true target column IN CORRECT ORDER
-  tn = task$task.desc$target
+  tn = getTaskTargetNames(task)
   test.inds = unlist(rin$test.inds)
 
   pred.train = as.list(probs[order(test.inds), , drop = FALSE])

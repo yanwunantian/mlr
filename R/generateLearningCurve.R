@@ -96,7 +96,7 @@ NULL
 #' @export
 print.LearningCurveData = function(x, ...) {
   catf("LearningCurveData:")
-  catf("Task: %s", x$task$task.desc$id)
+  catf("Task: %s", getTaskDescription(x$task)$id)
   catf("Measures: %s", paste(sapply(x$measures, function(z) z$name), collapse = ", "))
   print(head(x$data))
 }

@@ -37,7 +37,8 @@ trainLearner.regr.mob = function(.learner, .task, .subset, .weights = NULL, alph
   if (missing(term.feats))
     term.feats = feats
 
-  target = .task$task.desc$target
+  td = getTaskDescription(.task)
+  target = getTaskTargetNames(.task)
   f = as.formula(paste(target, "~", collapse(term.feats, sep = " + "), "|", collapse(part.feats, sep = " + ")))
 
   if (is.null(.weights)) {

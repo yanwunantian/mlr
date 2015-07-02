@@ -94,9 +94,7 @@ listLearners.character  = function(obj, properties = character(0L),
 #' @rdname listLearners
 listLearners.Task = function(obj, properties = character(0L),
   quiet = TRUE, warn.missing.packages = TRUE, create = FALSE) {
-
-  task = obj
-  td = task$task.desc
+  td = getTaskDescription(obj)
 
   props = character(0L)
   if (td$n.feat["numerics"] > 0L) props = c(props, "numerics")

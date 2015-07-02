@@ -28,9 +28,10 @@ makeRLearner.classif.glmboost = function() {
 trainLearner.classif.glmboost = function(.learner, .task, .subset, .weights = NULL, mstop, nu, m, risk, ...) {
   ctrl = learnerArgsToControl(mboost::boost_control, mstop, nu, risk)
   d = getTaskData(.task, .subset)
+  td = getTaskDescription(.task)
   if (.learner$predict.type == "prob") {
-    levs = c(.task$task.desc$negative, .task$task.desc$positive)
-    d[, .task$task.desc$target] = factor(d[, .task$task.desc$target], levs)
+    levs = c(td$negative, td$positive)
+    d[, getTargetNames(.task)] = factor(d[, getTargetNames(.task)], levs)
   }
   f = as.formula(getTaskFormulaAsString(.task))
   if (is.null(.weights)) {

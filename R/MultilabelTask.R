@@ -17,7 +17,7 @@ makeMultilabelTask = function(id, data, target, weights = NULL, blocking = NULL,
 
 checkTaskCreation.MultilabelTask = function(task, target, ...) {
   NextMethod("checkTaskCreation")
-  for (i in target){
+  for (i in target) {
     assertLogical(task$env$data[[i]], any.missing = FALSE, .var.name = target[i])
   }
 }

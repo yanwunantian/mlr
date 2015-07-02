@@ -24,7 +24,8 @@ makeRLearner.classif.gbm = function() {
 
 #' @export
 trainLearner.classif.gbm = function(.learner, .task, .subset, .weights = NULL,  ...) {
-  if (length(.task$task.desc$class.levels) == 2L)
+  td = getTaskDescription(.task)
+  if (length(td$class.levels) == 2L)
     d = getTaskData(.task, .subset, recode.target = "01")
   else
     d = getTaskData(.task, .subset)

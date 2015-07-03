@@ -39,6 +39,7 @@ r_binary_packages:
     # - elmNN
     - emoa
     # - extraTrees
+    - fields
     - flare
     - FNN
     - frbs

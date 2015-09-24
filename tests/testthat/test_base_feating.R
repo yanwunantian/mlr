@@ -1,4 +1,4 @@
-context("Feating Ensemble Algorithm")
+context("FeatingEnsemble")
 
 test_that("Feating works",{
   lrn = makeLearner("classif.svm")

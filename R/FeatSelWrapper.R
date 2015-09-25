@@ -77,3 +77,6 @@ predictLearner.FeatSelWrapper = function(.learner, .model, .newdata, ...) {
   predictLearner(.learner$next.learner, .model$learner.model$next.model, .newdata, ...)
 }
 
+getLearnerResampleExtractFunction2.FeatSelWrapper = function(learner) {
+  c(list(FeatSelResult = getFeatSelResult), getLearnerResampleExtractFunction2(learner$next.learner))
+}

@@ -84,4 +84,6 @@ makeWrappedModel.TuneWrapper = function(learner, learner.model, task.desc, subse
   addClasses(NextMethod(), "TuneModel")
 }
 
-
+getLearnerResampleExtractFunction2.TuneWrapper = function(learner) {
+  c(list(TuneResult = getTuneResult), getLearnerResampleExtractFunction2(learner$next.learner))
+}

@@ -80,3 +80,6 @@ getLearnerProperties.BaseWrapper = function(learner) {
   intersect(getSupportedLearnerProperties(learner$type), getLearnerProperties(learner$next.learner))
 }
 
+getLearnerResampleExtractFunction2.BaseWrapper = function(learner) {
+  getLearnerResampleExtractFunction2(learner$next.learner)
+}

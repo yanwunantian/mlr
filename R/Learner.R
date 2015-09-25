@@ -33,3 +33,8 @@ print.Learner = function(x, ...) {
     sep =""
   )
 }
+
+getLearnerResampleExtractFunction2.Learner = function(learner) {
+  NULL
+}
+

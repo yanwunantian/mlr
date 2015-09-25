@@ -54,7 +54,7 @@
 #' print(r$measures.test)
 #' print(r$pred)
 resample = function(learner, task, resampling, measures, weights = NULL, models = FALSE,
-  extract = NULL, keep.pred = TRUE, ..., show.info = getMlrOption("show.info")) {
+  extract = "default", keep.pred = TRUE, ..., show.info = getMlrOption("show.info")) {
 
   learner = checkLearner(learner, ...)
   assertClass(task, classes = "Task")
@@ -68,10 +68,15 @@ resample = function(learner, task, resampling, measures, weights = NULL, models 
     assertNumeric(weights, len = n, any.missing = FALSE, lower = 0)
   }
   assertFlag(models)
-  if (is.null(extract))
-    extract = getResampleExtract(learner)
-  else
+
+  if (is.null(extract)) {
+    extract = function(x) NULL
+  } else if (extract == "default") {
+    extract = getLearnerResampleExtractFunction(learner)
+  } else {
     assertFunction(extract)
+  }
+    
   assertFlag(show.info)
 
   r = resampling$size
@@ -190,7 +195,7 @@ mergeResampleResult = function(learner, task, iter.results, measures, rin, model
     pred = pred,
     models = if (models) lapply(iter.results, function(x) x$model) else NULL,
     err.msgs = err.msgs,
-    extract = if(is.function(extract)) extractSubList(iter.results, "extract", simplify = FALSE) else NULL,
+    extract = extractSubList(iter.results, "extract", simplify = FALSE),
     runtime = runtime
   )
 }

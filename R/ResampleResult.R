@@ -40,6 +40,7 @@
 #' }
 #' \item{extract [\code{list}]:}{
 #'   List of extracted parts from fitted models or \code{NULL}.
+#'   What is extracted is specified by the extract function supplied to \code{\link{resample}}.
 #' }
 #' \item{runtime [\code{numeric(1)}]:}{
 #'   Time in seconds it took to execute the resampling.

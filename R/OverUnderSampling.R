@@ -16,6 +16,7 @@
 #'   where 1 means no oversampling and 2 would mean doubling the class size.
 #' @template ret_task
 #' @family imbalancy
+#' @references [MISSING]
 #' @export
 oversample = function(task, rate) {
   checkTask(task, "ClassifTask", binary = TRUE)

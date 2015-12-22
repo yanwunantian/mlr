@@ -16,6 +16,7 @@
 #'
 #' @template arg_learner_classif
 #' @return [\code{\link{Learner}}].
+#' @references [MISSING]
 #' @export
 #' @family costsens
 #' @aliases CostSensWeightedPairsWrapper CostSensWeightedPairsModel

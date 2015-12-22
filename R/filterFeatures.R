@@ -27,6 +27,7 @@
 #' @param ... [any]\cr
 #'   Passed down to selected filter method.
 #' @template ret_task
+#' @references [MISSING]
 #' @export
 #' @family filter
 filterFeatures = function(task, method = "rf.importance", fval = NULL, perc = NULL, abs = NULL,

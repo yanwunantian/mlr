@@ -40,6 +40,7 @@
 #'   Default is 1.
 #' @template ret_learner
 #' @family wrapper
+#' @references [MISSING]
 #' @export
 #' @examples
 #' # using the direct parameter of the SVM (which is already defined in the learner)

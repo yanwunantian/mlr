@@ -35,6 +35,7 @@
 #' @template ret_learner
 #' @family imbalancy
 #' @family wrapper
+#' @references [MISSING]
 #' @export
 makeOverBaggingWrapper = function(learner, obw.iters = 10L, obw.rate = 1, obw.maxcl = "boot") {
 

@@ -54,6 +54,7 @@
 #'
 #' @family generate_plot_data
 #' @family benchmark
+#' @references [MISSING]
 #' @export
 generateCritDifferencesData = function(bmr, measure = NULL, p.value = 0.05,
                                        baseline = NULL, test = "bd") {

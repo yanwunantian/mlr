@@ -38,6 +38,7 @@
 #'   Percentage size of randomly selected features in bags.
 #'   Default is 1.
 #'   At least one feature will always be selected.
+#' @references Domingos, P. (1997); Why Does Bagging Work? A Bayesian Account and its Implications, KDD (pp. 155-158).
 #' @template ret_learner
 #' @family wrapper
 #' @export

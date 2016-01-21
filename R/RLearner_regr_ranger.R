@@ -18,10 +18,12 @@ makeRLearner.regr.ranger = function() {
       makeIntegerLearnerParam(id = "num.threads", lower = 1L, when = "both", tunable = FALSE),
       makeLogicalLearnerParam(id = "save.memory", default = FALSE, tunable = FALSE),
       makeLogicalLearnerParam(id = "verbose", default = TRUE, when = "both", tunable = FALSE),
-      makeIntegerLearnerParam(id = "seed", when = "both", tunable = FALSE)
+      makeIntegerLearnerParam(id = "seed", when = "both", tunable = FALSE),
+      makeDiscreteLearnerParam(id = "se.method", default = "gower.knn", values = c("gower.knn"), when = "both"),
+      makeIntegerLearnerParam(id = "gower.knn", default = 3L, lower = 1L, requires = quote(se.method == "gower.knn"), when = "predict")
     ),
-    par.vals = list(num.threads = 1L, verbose = FALSE),
-    properties = c("numerics", "factors"),
+    par.vals = list(num.threads = 1L, verbose = FALSE, se.method = "gower.knn", gower.knn = 3L),
+    properties = c("numerics", "factors", "se"),
     name = "Random Forests",
     short.name = "ranger",
     note = "By default, internal parallelization is switched off (`num.threads = 1`) and `verbose` output is disabled. Both settings are changeable."
@@ -29,14 +31,46 @@ makeRLearner.regr.ranger = function() {
 }
 
 #' @export
-trainLearner.regr.ranger = function(.learner, .task, .subset, .weights, ...) {
+trainLearner.regr.ranger = function(.learner, .task, .subset, .weights, se.method, ...) {
   tn = getTaskTargetNames(.task)
-  ranger::ranger(formula = NULL, dependent.variable = tn, data = getTaskData(.task, .subset),
-    write.forest = TRUE, ...)
+  mod = ranger::ranger(formula = NULL, dependent.variable = tn, data = getTaskData(.task, .subset), write.forest = TRUE, ...)
+  if (se.method == "gower.knn")
+    return(attachTrainingInfo(mod, getTaskData(.task, .subset, target.extra = TRUE)$data))
+  return(mod)
 }
 
 #' @export
-predictLearner.regr.ranger = function(.learner, .model, .newdata, ...) {
+predictLearner.regr.ranger = function(.learner, .model, .newdata, se.method, gower.knn, ...) {
   p = predict(object = .model$learner.model, data = .newdata, ...)
-  return(p$predictions)
+  if (.learner$predict.type == "se") {
+    if (se.method == "gower.knn") {
+      requirePackages("_StatMatch")
+      x = getTrainingInfo(.model)
+      gower.knn = min(gower.knn, nrow(x))
+      dists = StatMatch::gower.dist(.newdata, x)
+      se = apply(dists, 1L, function(x, nn) mean(head(sort(x, partial = nn), nn)), nn = gower.knn)
+      return(cbind(p$predictions, se))
+    }
+  } else {
+    return(p$predictions)
+  }
+}
+
+if (FALSE) {
+  task = bh.task
+  n = getTaskSize(task)
+
+  lrn = makeLearner("regr.ranger", predict.type = "se", gower.knn = 1)
+  mod = train(learner = lrn, task = task)
+  predict(mod, task) # se should be 0 because NN is 1
+
+  lrn = makeLearner("regr.ranger", predict.type = "se", gower.knn = 3)
+  mod = train(learner = lrn, task = task)
+  predict(mod, task) # se should be > 0
+
+  lrn = makeLearner("regr.ranger", predict.type = "se", gower.knn = 3)
+  train.ind = sample(n, 2/3 * n)
+  test.ind = setdiff(seq_len(n), train.ind)
+  mod = train(learner = lrn, task = task, subset = train.ind)
+  predict(mod, task) # se should be > 0
 }

@@ -14,9 +14,9 @@ makeUncertaintyWrapper = function(learner, gower.knn = 3) {
   makeBaseWrapper(
     id = paste(learner$id, "uncertainty", sep = "."),
     type = "regr",
-    learner = learner,
+    next.learner = learner,
     par.set = ps,
-    par.vals = pv
+    par.vals = pv,
     learner.subclass = "UncertaintyWrapper", 
     model.subclass = "UncertaintyModel"
     )
@@ -25,21 +25,18 @@ makeUncertaintyWrapper = function(learner, gower.knn = 3) {
 #' @export
 trainLearner.UncertaintyWrapper = function(.learner, .task, .subset, .weights = NULL, ...) {
   .task = subsetTask(.task, .subset)
-  m = list(
-    model = train(.learner$next.learner, .task, weights = .weights),
-    origignal.task = .task
-  )
-  makeChainModel(next.model = m, cl = "UncertaintyModel")
+  model = train(.learner$next.learner, .task, weights = .weights)
+  m = makeChainModel(next.model = model, cl = "UncertaintyModel")
+  m$origignal.task = .task
+  return(m)
 }
 
 #' @export
-predictLearner.UncertaintyModel = function(.learner, .model, .newdata, gower.knn, ...) {
-  p = predict(m$model, newdata = newdata, ...)
+predictLearner.UncertaintyWrapper = function(.learner, .model, .newdata, gower.knn, ...) {
+  p = predict(getLearnerModel(.model), newdata = .newdata, ...)
   if (.learner$predict.type == "se") {
-   requirePackages("_StatMatch")
-    m = getLearnerModel(.model, more.unwrap = FALSE)
-    train.data = getTaskData(m$origignal.task)
-    
+    requirePackages("_StatMatch")
+    train.data = getTaskData(.model$learner.model$origignal.task, target.extra = TRUE)$data
     gower.knn = min(gower.knn, nrow(train.data))
     dists = StatMatch::gower.dist(.newdata, train.data)
     se = apply(dists, 1L, function(x, nn) mean(head(sort(x, partial = nn), nn)), nn = gower.knn)

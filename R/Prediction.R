@@ -25,12 +25,12 @@
 #' @rdname Prediction
 NULL
 
-makePrediction = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time) {
+makePrediction = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time, dump) {
   UseMethod("makePrediction")
 }
 
 #' @export
-makePrediction.TaskDescRegr = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time) {
+makePrediction.TaskDescRegr = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time, dump) {
   data = namedList(c("id", "truth", "response", "se"))
   data$id = id
   data$truth = truth
@@ -46,12 +46,13 @@ makePrediction.TaskDescRegr = function(task.desc, row.names, id, truth, predict.
     data = setRowNames(as.data.frame(filterNull(data)), row.names),
     threshold = NA_real_,
     task.desc = task.desc,
-    time = time
+    time = time,
+    dump = dump
   )
 }
 
 #' @export
-makePrediction.TaskDescClassif = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time) {
+makePrediction.TaskDescClassif = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time, dump) {
   data = namedList(c("id", "truth", "response", "prob"))
   data$id = id
   # truth can come from a simple "newdata" df. then there might not be all factor levels present
@@ -75,7 +76,8 @@ makePrediction.TaskDescClassif = function(task.desc, row.names, id, truth, predi
     data = setRowNames(data, row.names),
     threshold = NA_real_,
     task.desc = task.desc,
-    time = time
+    time = time,
+    dump = dump
   )
 
   if (predict.type == "prob") {
@@ -90,7 +92,7 @@ makePrediction.TaskDescClassif = function(task.desc, row.names, id, truth, predi
 }
 
 #' @export
-makePrediction.TaskDescMultilabel = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time) {
+makePrediction.TaskDescMultilabel = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time, dump) {
   data = namedList(c("id", "truth", "response", "prob"))
   data$id = id
   data$truth = truth
@@ -105,7 +107,8 @@ makePrediction.TaskDescMultilabel = function(task.desc, row.names, id, truth, pr
     data = setRowNames(as.data.frame(filterNull(data)), row.names),
     threshold = NA_real_,
     task.desc = task.desc,
-    time = time
+    time = time,
+    dump = dump
   )
   if (predict.type == "prob") {
     # set default threshold to 0.5
@@ -119,7 +122,7 @@ makePrediction.TaskDescMultilabel = function(task.desc, row.names, id, truth, pr
 }
 
 #' @export
-makePrediction.TaskDescSurv = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time) {
+makePrediction.TaskDescSurv = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time, dump) {
   data = namedList(c("id", "truth.time", "truth.event", "response"))
   data$id = id
   # FIXME: recode times
@@ -132,12 +135,13 @@ makePrediction.TaskDescSurv = function(task.desc, row.names, id, truth, predict.
     data = setRowNames(as.data.frame(filterNull(data)), row.names),
     threshold = NA_real_,
     task.desc = task.desc,
-    time = time
+    time = time,
+    dump = dump
   )
 }
 
 #' @export
-makePrediction.TaskDescCluster = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time) {
+makePrediction.TaskDescCluster = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time, dump) {
   data = namedList(c("id", "response", "prob"))
   data$id = id
   if (predict.type == "response") {
@@ -155,13 +159,14 @@ makePrediction.TaskDescCluster = function(task.desc, row.names, id, truth, predi
     data = setRowNames(data, row.names),
     threshold = NA_real_,
     task.desc = task.desc,
-    time = time
+    time = time,
+    dump = dump
   )
   return(p)
 }
 
 #' @export
-makePrediction.TaskDescCostSens = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time) {
+makePrediction.TaskDescCostSens = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time, dump) {
   data = namedList(c("id", "response"))
   data$id = id
   data$response = y
@@ -171,7 +176,8 @@ makePrediction.TaskDescCostSens = function(task.desc, row.names, id, truth, pred
     data = setRowNames(as.data.frame(filterNull(data)), row.names),
     threshold = NA_real_,
     task.desc = task.desc,
-    time = time
+    time = time,
+    dump = dump
   )
 }
 

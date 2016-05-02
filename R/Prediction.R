@@ -25,12 +25,12 @@
 #' @rdname Prediction
 NULL
 
-makePrediction = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time, dump) {
+makePrediction = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time, dump = NULL) {
   UseMethod("makePrediction")
 }
 
 #' @export
-makePrediction.TaskDescRegr = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time, dump) {
+makePrediction.TaskDescRegr = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time, dump = NULL) {
   data = namedList(c("id", "truth", "response", "se"))
   data$id = id
   data$truth = truth
@@ -52,7 +52,7 @@ makePrediction.TaskDescRegr = function(task.desc, row.names, id, truth, predict.
 }
 
 #' @export
-makePrediction.TaskDescClassif = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time, dump) {
+makePrediction.TaskDescClassif = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time, dump = NULL) {
   data = namedList(c("id", "truth", "response", "prob"))
   data$id = id
   # truth can come from a simple "newdata" df. then there might not be all factor levels present
@@ -92,7 +92,7 @@ makePrediction.TaskDescClassif = function(task.desc, row.names, id, truth, predi
 }
 
 #' @export
-makePrediction.TaskDescMultilabel = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time, dump) {
+makePrediction.TaskDescMultilabel = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time, dump = NULL) {
   data = namedList(c("id", "truth", "response", "prob"))
   data$id = id
   data$truth = truth
@@ -122,7 +122,7 @@ makePrediction.TaskDescMultilabel = function(task.desc, row.names, id, truth, pr
 }
 
 #' @export
-makePrediction.TaskDescSurv = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time, dump) {
+makePrediction.TaskDescSurv = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time, dump = NULL) {
   data = namedList(c("id", "truth.time", "truth.event", "response"))
   data$id = id
   # FIXME: recode times
@@ -141,7 +141,7 @@ makePrediction.TaskDescSurv = function(task.desc, row.names, id, truth, predict.
 }
 
 #' @export
-makePrediction.TaskDescCluster = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time, dump) {
+makePrediction.TaskDescCluster = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time, dump = NULL) {
   data = namedList(c("id", "response", "prob"))
   data$id = id
   if (predict.type == "response") {
@@ -166,7 +166,7 @@ makePrediction.TaskDescCluster = function(task.desc, row.names, id, truth, predi
 }
 
 #' @export
-makePrediction.TaskDescCostSens = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time, dump) {
+makePrediction.TaskDescCostSens = function(task.desc, row.names, id, truth, predict.type, predict.threshold = NULL, y, time, dump = NULL) {
   data = namedList(c("id", "response"))
   data$id = id
   data$response = y

@@ -62,6 +62,7 @@ evalOptimizationState = function(learner, task, resampling, measures, par.set, b
     if (any(notna))
       errmsg = errmsgs[notna][1L]
     exec.time = exec.time[3L]
+    
   } else {
     # we still need to define a non-NULL threshold, if tuning it was requested
     if (control$tune.threshold)
@@ -72,7 +73,8 @@ evalOptimizationState = function(learner, task, resampling, measures, par.set, b
   if (show.info)
     log.fun(learner, task, resampling, measures, par.set, control, opt.path, dob, state, y,
       remove.nas, stage = 2L, prev.stage = prev.stage)
-  list(y = y, exec.time = exec.time, errmsg = errmsg, threshold = threshold)
+  list(y = y, exec.time = exec.time, errmsg = errmsg, threshold = threshold,
+      err.dumps = r$err.dumps)
 }
 
 # evaluates a list of states by calling evalOptimizationState
@@ -103,7 +105,12 @@ evalOptimizationStates = function(learner, task, resampling, measures, par.set, 
       extra = as.list(res$threshold)
       names(extra) = paste0("threshold", ifelse(length(extra) > 1L, ".", ""), names(extra))
     } else {
-      extra = NULL
+      extra = list()
+    }
+    # include error dumps only when at least one dump is present. (this only happens
+    # when options tell us to save dumps).
+    if (!is.null(unlist(res$err.dumps))) {
+      extra$.dump = res$err.dumps
     }
     # check.feasible = FALSE if we put in transformed values
     check.feasible = !is.null(par.set) && !hasTrafo(par.set)

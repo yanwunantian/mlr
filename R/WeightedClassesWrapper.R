@@ -114,7 +114,7 @@ trainLearner.WeightedClassesWrapper = function(.learner, .task, .subset, .weight
     weights = wcw.weight[y]
     m = train(.learner$next.learner, task = .task, weights = weights)
   } else {
-    .learner = setHyperPars(.learner, par.vals = setNames(list(wcw.weight), p))
+    .learner = setClassWeights(.learner, wcw.weight)
     m = train(.learner$next.learner, task = .task)
   }
   makeChainModel(next.model = m, cl = "WeightedClassesModel")

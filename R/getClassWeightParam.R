@@ -9,7 +9,14 @@
 #' @family learner
 #' @export
 getClassWeightParam = function(learner) {
-  learner = checkLearnerClassif(learner)
-  assertChoice("class.weights", getLearnerProperties(learner))
+  learner2 = checkLearnerClassif(learner)
+  if (is.character(learner))
+    getClassWeightParam(learner2)
+  else
+    UseMethod("getClassWeightParam", learner)
+}
+
+#' @export
+getClassWeightParam.Learner = function(learner) {
   learner$par.set$pars[[learner$class.weights.param]]
 }

@@ -111,6 +111,14 @@ makeWrappedModel.ModelMultiplexer = function(learner, learner.model, task.desc, 
 }
 
 #' @export
+getClassWeightParam.ModelMultiplexer = function(learner) {
+  sl = getHyperPars(learner)$selected.learner
+  bl = learner$base.learners[[sl]]
+  getClassWeightParam(bl)
+}
+
+
+#' @export
 getLearnerModel.ModelMultiplexerModel = function(model, more.unwrap = FALSE) {
   if (inherits(model$learner.model, "NoFeaturesModel")) {
     return(model$learner.model)
@@ -125,4 +133,5 @@ getLearnerModel.ModelMultiplexerModel = function(model, more.unwrap = FALSE) {
 isFailureModel.ModelMultiplexerModel = function(model) {
   !inherits(model$learner.model, "NoFeaturesModel") && isFailureModel(model$learner.model$next.model)
 }
+
 

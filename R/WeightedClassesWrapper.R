@@ -68,12 +68,12 @@ makeWeightedClassesWrapper = function(learner, wcw.param = NULL, wcw.weight = 1)
   learner = checkLearnerClassif(learner)
   pv = list()
 
-  if (is.null(wcw.param))
-    wcw.param = learner$class.weights.param
-  else if (!is.null(learner$class.weights.param) && (learner$class.weights.param != wcw.param))
-    stopf("wcw.param (%s) differs from the class.weights.parameter (%s) of the learner!",
-      wcw.param, learner$class.weights.param)
-
+  if (hasLearnerProperties(learner, "class.weights")) {
+    # if the learner supports the special param and user has not forcefully selected one, get it from the learner
+    if (is.null(wcw.param))
+      wcw.param = getClassWeightParam(learner)$id
+  }
+  print(wcw.param)
   if (is.null(wcw.param)) {
     if (!hasLearnerProperties(learner, "weights"))
       stopf("Learner '%s' does not support observation weights. You have to set 'wcw.param' to the learner param which allows to set class weights! (which hopefully exists...)", learner$id)
@@ -114,7 +114,7 @@ trainLearner.WeightedClassesWrapper = function(.learner, .task, .subset, .weight
     weights = wcw.weight[y]
     m = train(.learner$next.learner, task = .task, weights = weights)
   } else {
-    .learner = setClassWeights(.learner, wcw.weight)
+    .learner$next.learner = setClassWeights(.learner$next.learner, wcw.weight)
     m = train(.learner$next.learner, task = .task)
   }
   makeChainModel(next.model = m, cl = "WeightedClassesModel")

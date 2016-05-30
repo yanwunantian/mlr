@@ -27,3 +27,30 @@ generateValidationData = function(TuneResult, include.diagnostics = FALSE) {
             diagnostics = include.diagnostics, 
             optimization = getClass1(TuneResult$control))
 }
+
+#' Plot the Validation data
+#'
+#' @param ValidationData 
+#' @param x.axis
+#' @param y.axis
+#' @param plot.type
+#' @return what does it return
+#' @export
+plotValidationData = function(ValidationData, x.axis = NULL, y.axis = NULL, 
+                              plot.type = "scatter"){
+  # assertions
+  checkmate::assertClass(ValidationData, classes = "ValidationData")
+  if (is.null(x.axis))
+    stopf("The x.axis argument must be specified!")
+  if (is.null(y.axis))
+    stopf("The y.axis argument must be specified!")
+    
+  data = ValidationData$data
+  
+  # assuming 1D for both x and y
+  if (plot.type == "line")
+    ggplot(data, aes_string(x = x.axis, y = y.axis)) + geom_line()
+  if (plot.type == "scatter")
+    ggplot(data, aes_string(x = x.axis, y = y.axis)) + geom_point()
+  
+}

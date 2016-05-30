@@ -11,6 +11,9 @@ generateValidationData(TuneResult, include.diagnostics = FALSE)
 
 \item{include.diagnostics}{}
 }
+\value{
+what does it return
+}
 \description{
 Generate the Validation data
 }

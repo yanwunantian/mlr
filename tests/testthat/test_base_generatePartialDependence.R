@@ -72,7 +72,7 @@ test_that("generatePartialDependenceData", {
                                       interaction = TRUE, gridsize = gridsize)
   nfacet = length(unique(dcp$data$Petal.Length))
   ntarget = length(dcp$target)
-  plotPartialDependence(dcp, facet = "Petal.Length")
+  plotPartialDependence(dcp, geom = "tile")
   ggsave(path)
   doc = XML::xmlParse(path)
   #expect_that(length(XML::getNodeSet(doc, grey.xpath, ns.svg)), equals(nfacet))
@@ -84,11 +84,11 @@ test_that("generatePartialDependenceData", {
   ## check that probability outputting classifiers work with ICE
   dcp = generatePartialDependenceData(fcp, input = multiclass.task, features = c("Petal.Width", "Petal.Length"),
                                       interaction = TRUE, individual = TRUE, gridsize = gridsize)
-  plotPartialDependence(dcp, facet = "Petal.Length")
+  plotPartialDependence(dcp, geom = "tile")
   ## plotPartialDependenceGGVIS(dcp, interact = "Petal.Length")
 
   ## check that survival tasks work with multiple features
-  fs = train("surv.rpart", surv.task)
+  fs = train("surv.coxph", surv.task)
   ds = generatePartialDependenceData(fs, input = surv.task, features = c("x1", "x2"),
                                      gridsize = gridsize)
   nfeat = length(ds$features)
@@ -167,8 +167,6 @@ test_that("generatePartialDependenceData", {
                                        bounds = c(-2, 2), gridsize = gridsize)
 
   ## check that tile + contour plots work for two and three features with regression and survival
-  expect_warning(plotPartialDependence(db, "tile")) ## factor feature
-  expect_error(plotPartialDependence(dcp, geom = "tile")) ## no multiclass support
   expect_error(plotPartialDependence(ds, geom = "tile")) ## interaction == FALSE
   tfr = generatePartialDependenceData(fr, regr.df, features = c("lstat", "crim", "chas"),
                                       interaction = TRUE, gridsize = gridsize)
@@ -185,14 +183,15 @@ test_that("generateFeatureGrid", {
     z = 1:3
   )
   features = colnames(data)
-  fmin = sapply(features, function(x) ifelse(!is.factor(data[[x]]), min(data[[x]], na.rm = TRUE), NA))
-  fmax = sapply(features, function(x) ifelse(!is.factor(data[[x]]), max(data[[x]], na.rm = TRUE), NA))
-  resample = "none"
-  cutoff = 3L
+  fmin = sapply(features, function(x)
+    ifelse(!is.factor(data[[x]]), min(data[[x]], na.rm = TRUE), NA), simplify = FALSE)
+  fmax = sapply(features, function(x)
+    ifelse(!is.factor(data[[x]]), max(data[[x]], na.rm = TRUE), NA), simplify = FALSE)
+  out = generateFeatureGrid(features, data, "none", gridsize = 3, fmin, fmax)
 
-  expect_that(generateFeatureGrid("w", data, resample, fmin["w"], fmax["w"], cutoff), is_a("numeric"))
-  expect_that(generateFeatureGrid("x", data, resample, fmin["x"], fmax["x"], cutoff), is_a("factor"))
-  expect_that(levels(generateFeatureGrid("x", data, resample, NA, NA, cutoff)), equals(letters[1:3]))
-  expect_that(generateFeatureGrid("y", data, resample, fmin["y"], fmax["y"], cutoff), is_a("ordered"))
-  expect_that(generateFeatureGrid("z", data, resample, fmin["z"], fmax["z"], cutoff), is_a("integer"))
+  expect_that(out$w, is_a("numeric"))
+  expect_that(out$x, is_a("factor"))
+  expect_that(levels(out$x), equals(letters[1:3]))
+  expect_that(out$y, is_a("ordered"))
+  expect_that(out$z, is_a("integer"))
 })

@@ -30,6 +30,7 @@ mlr_2.9:
 - rename generatePartialPrediction, plotPartialPrediction, and plotPartialPredictionGGVIS to
   generatePartialDependence, plotPartialDependence, and plotPartialDependenceGGVIS
 - add stability.nugget parameter for "regr.km"
+- plotPartialDependence can plot classification tasks with more than one interacted features now
 
 - new learners
 -- surv.cv.CoxBoost
@@ -49,6 +50,9 @@ mlr_2.9:
 
 - removed functions
 -- getParamSet generic (now in ParamHelpers package)
+
+- new measures
+-- measureBrier (for mutliclass problems)
 
 mlr_2.8:
 - Feature filter "univariate" had a bad name, was deprecated and is now called

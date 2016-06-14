@@ -187,11 +187,11 @@ generatePartialDependenceData = function(obj, input, features,
   assertChoice(resample, c("none", "bootstrap", "subsample"))
 
   if (missing(fmin))
-    fmin = lapply(features, function(x) ifelse(is.ordered(data[[x]]) | is.numeric(data[[x]]),
-                                               min(data[[x]], na.rm = TRUE), NA))
+    fmin = sapply(features, function(x) ifelse(is.ordered(data[[x]]) | is.numeric(data[[x]]),
+                                               min(data[[x]], na.rm = TRUE), NA), simplify = FALSE)
   if (missing(fmax))
-    fmax = lapply(features, function(x) ifelse(is.ordered(data[[x]]) | is.numeric(data[[x]]),
-                                               max(data[[x]], na.rm = TRUE), NA))
+    fmax = sapply(features, function(x) ifelse(is.ordered(data[[x]]) | is.numeric(data[[x]]),
+                                               max(data[[x]], na.rm = TRUE), NA), simplify = FALSE)
   assertList(fmin, len = length(features))
   if (!all(names(fmin) %in% features))
     stop("fmin must be a named list with an NA or value corresponding to each feature.")
@@ -200,10 +200,7 @@ generatePartialDependenceData = function(obj, input, features,
     stop("fmax must be a named list with an NA or value corresponding to each feature.")
   assertCount(gridsize, positive = TRUE)
 
-  rng = vector("list", length(features))
-  names(rng) = features
-  for (i in 1:length(features))
-    rng[[i]] = generateFeatureGrid(features[i], data, resample, fmax[[i]], fmin[[i]], gridsize)
+  rng = generateFeatureGrid(features, data, resample, gridsize, fmin, fmax)
   if (length(features) > 1L & interaction)
     rng = expand.grid(rng)
 
@@ -252,7 +249,7 @@ generatePartialDependenceData = function(obj, input, features,
           centerpred = NULL
       }
       if (!individual)
-        doAggregatePartialDependence(out, td, target, x, test, rng)
+        doAggregatePartialDependence(out, td, target, x, rng)
       else
         doIndividualPartialDependence(out, td, nrow(data), rng, target, x, centerpred)
     })
@@ -275,7 +272,7 @@ generatePartialDependenceData = function(obj, input, features,
         centerpred = NULL
     }
     if (!individual)
-      out = doAggregatePartialDependence(out, td, target, features, test, rng)
+      out = doAggregatePartialDependence(out, td, target, features, rng)
     else
       out = doIndividualPartialDependence(out, td, nrow(data), rng, target, features, centerpred)
   }
@@ -349,26 +346,28 @@ doPartialDependenceIteration = function(obj, data, rng, features, fun, td, i, bo
     apply(getPredictionProbabilities(pred), 2, fun)
 }
 
-generateFeatureGrid = function(feature, data, resample, fmin, fmax, gridsize) {
-  nunique = ifelse(length(feature) > 1L, nrow(unique(data[feature, ])), length(unique(data[[feature]])))
-  cutoff = ifelse(gridsize >= nunique, nunique, gridsize)
+generateFeatureGrid = function(features, data, resample, gridsize, fmin, fmax) {
+  sapply(features, function(feature) {
+      nunique = length(unique(data[[feature]]))
+      cutoff = ifelse(gridsize >= nunique, nunique, gridsize)
 
-  if (is.factor(data[[feature]])) {
-    factor(rep(levels(data[[feature]]), length.out = cutoff),
-           levels = levels(data[[feature]]), ordered = is.ordered(data[[feature]]))
-  } else {
-    if (resample != "none") {
-      sort(sample(data[[feature]], cutoff, resample == "bootstrap"))
-    } else {
-      if (is.integer(data[[feature]]))
-        sort(rep(fmin:fmax, length.out = cutoff))
-      else
-        seq(fmin, fmax, length.out = cutoff)
-    }
-  }
+      if (is.factor(data[[feature]])) {
+        factor(rep(levels(data[[feature]]), length.out = cutoff),
+               levels = levels(data[[feature]]), ordered = is.ordered(data[[feature]]))
+      } else {
+        if (resample != "none") {
+          sort(sample(data[[feature]], cutoff, resample == "bootstrap"))
+        } else {
+          if (is.integer(data[[feature]]))
+            sort(rep(fmin[[feature]]:fmax[[feature]], length.out = cutoff))
+          else
+            seq(fmin[[feature]], fmax[[feature]], length.out = cutoff)
+        }
+      }
+    }, simplify = FALSE)
 }
 
-doAggregatePartialDependence = function(out, td, target, features, test, rng) {
+doAggregatePartialDependence = function(out, td, target, features, rng) {
   out = as.data.frame(do.call("rbind", out))
   if (td$type == "regr" & ncol(out) == 3L)
     colnames(out) = c("lower", target, "upper")
@@ -381,7 +380,7 @@ doAggregatePartialDependence = function(out, td, target, features, test, rng) {
 
   if (all(target %in% td$class.levels)) {
     out = melt(out, id.vars = features, variable = "Class", value.name = "Probability")
-    out$Class = gsub("^prob\\.", "", out$Class)
+    out$Class = stri_replace_all(out$Class, "", regex = "^prob\\.")
   }
   out
 }
@@ -414,8 +413,8 @@ doIndividualPartialDependence = function(out, td, n, rng, target, features, cent
 print.PartialDependenceData = function(x, ...) {
   catf("PartialDependenceData")
   catf("Task: %s", x$task.desc$id)
-  catf("Features: %s", paste(x$features, collapse = ", "))
-  catf("Target: %s", paste(x$target, collapse = ", "))
+  catf("Features: %s", stri_paste(x$features, collapse = ", ", sep = " "))
+  catf("Target: %s", stri_paste(x$target, collapse = ", ", sep = " "))
   catf("Derivative: %s", x$derivative)
   catf("Interaction: %s", x$interaction)
   catf("Individual: %s", x$individual)
@@ -461,26 +460,8 @@ plotPartialDependence = function(obj, geom = "line", facet = NULL, p = 1) {
   if (length(obj$features) > 2L & geom != "tile" & obj$interaction)
     stop("To plot more than 2 features geom must be 'tile'!")
   assertChoice(geom, c("tile", "line"))
-  if (geom == "tile") {
-    if (!(obj$task.desc$type %in% c("regr", "surv"))) {
-      if (length(obj$task.desc$class.levels) > 2L)
-        stop("Only visualization of binary classification works with tiling!")
-    }
-
-    feat_classes = sapply(obj$data, class)
-    if (any(feat_classes == "factor")) {
-      fact_feats = names(feat_classes[feat_classes == "factor"])
-      if (!is.null(facet))
-        fact_feats = fact_feats[which(fact_feats != facet)]
-      do_not_contour = length(fact_feats) > 0L
-    } else
-      do_not_contour = FALSE
-
-    if (do_not_contour)
-      warning("Factor features cannot be used to create contour plots! only tiles will be displayed.")
-    if (!obj$interaction)
+  if (geom == "tile" & !obj$interaction)
       stop("generatePartialDependenceData was called with interaction = FALSE!")
-  }
 
   if (!is.null(facet)) {
     assertChoice(facet, obj$features)
@@ -490,9 +471,9 @@ plotPartialDependence = function(obj, geom = "line", facet = NULL, p = 1) {
       stop("generatePartialDependence must be called with interaction = TRUE to use this argument!")
     features = obj$features[which(obj$features != facet)]
     if (!is.factor(obj$data[[facet]]))
-      obj$data[[facet]] = paste(facet, "=", as.factor(signif(obj$data[[facet]], 2)), sep = " ")
+      obj$data[[facet]] = stri_paste(facet, "=", as.factor(signif(obj$data[[facet]], 2)), sep = " ")
     else
-      obj$data[[facet]] = paste(facet, "=", obj$data[[facet]])
+      obj$data[[facet]] = stri_paste(facet, "=", obj$data[[facet]], sep = " ")
     scales = "fixed"
   } else {
     features = obj$features
@@ -500,6 +481,8 @@ plotPartialDependence = function(obj, geom = "line", facet = NULL, p = 1) {
       facet = "Feature"
       scales = "free_x"
     }
+    if (obj$task.desc$type == "classif" & geom == "tile" & length(features) == 2L)
+      scales = "free_x"
   }
 
   if (p != 1) {
@@ -550,19 +533,23 @@ plotPartialDependence = function(obj, geom = "line", facet = NULL, p = 1) {
       plt = plt + geom_ribbon(aes_string(ymin = "lower", ymax = "upper"), alpha = .5)
 
     if (obj$center)
-      plt = plt + ylab(paste(target, "(centered)"))
+      plt = plt + ylab(stri_paste(target, "(centered)", sep = " "))
 
     if (obj$derivative)
-      plt = plt + ylab(paste(target, "(derivative)"))
+      plt = plt + ylab(stri_paste(target, "(derivative)", sep = " "))
   } else { ## tiling
-    plt = ggplot(obj$data, aes_string(x = features[1], y = features[2], z = target))
-    plt = plt + geom_tile(aes_string(fill = target))
-    if (!do_not_contour)
-      plt = plt + stat_contour()
+    if (obj$task.desc$type == "classif") {
+      plt = ggplot(obj$data, aes_string(x = features[1], y = features[2], fill = "Probability"))
+      plt = plt + geom_raster()
+      facet = "Class"
+    } else {
+      plt = ggplot(obj$data, aes_string(x = features[1], y = features[2], z = target))
+      plt = plt + geom_raster(aes_string(fill = target))
+    }
   }
 
   if (!is.null(facet))
-    plt = plt + facet_wrap(as.formula(paste0("~ ", facet)), scales = scales)
+    plt = plt + facet_wrap(as.formula(stri_paste("~", facet)), scales = scales)
 
   plt
 }
@@ -679,9 +666,9 @@ plotPartialDependenceGGVIS = function(obj, interact = NULL, p = 1) {
   }
 
   if (obj$center)
-    header = paste(target, "(centered)")
+    header = stri_paste(target, "(centered)", sep = " ")
   else if (obj$derivative)
-    header = paste(target, "(derivative)")
+    header = stri_paste(target, "(derivative)", sep = " ")
   else
     header = target
 

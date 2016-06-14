@@ -9,8 +9,7 @@
 #' @family learner
 #' @export
 getClassWeightParam = function(learner) {
-  #FIXME: change that to  learner = checkLernearClassif(learner, "class.weights") after merge of PR 883
-  learner = checkLearnerClassif(learner)
+  learner = checkLearnerClassif(learner, "class.weights")
   assertChoice("class.weights", getLearnerProperties(learner))
   UseMethod("getClassWeightParam", learner)
 }
@@ -18,7 +17,7 @@ getClassWeightParam = function(learner) {
 
 #' @export
 getClassWeightParam.Learner = function(learner) {
-  learner = checkLearnerClassif(learner)
+  learner = checkLearnerClassif(learner, "class.weights")
   weight.param.name = learner$class.weights.param
   learner$par.set$pars[[weight.param.name]]  
 }

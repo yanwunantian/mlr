@@ -66,3 +66,40 @@ setThreshold = function(pred, threshold) {
   return(pred)
 }
 
+setBMRThreshhold = function(bmr, threshold) {
+  checkPrediction(pred, task.type = c("classif", "multilabel"), predict.type = "prob", no.na = FALSE)
+  assertNumeric(threshold, any.missing = FALSE)
+  td = pred$task.desc
+  ttype = td$type
+  levs = td$class.levels
+  if (length(levs) == 2L && is.numeric(threshold) && length(threshold) == 1L) {
+    threshold = c(threshold, 1-threshold)
+    names(threshold) = c(td$positive, td$negative)
+  }
+  if (length(threshold > 1L) && !setequal(levs, names(threshold)))
+    stop("Threshold names must correspond to classes!")
+  p = getPredictionProbabilities(pred, cl = levs)
+  # resort so we have same order in threshold and p
+  threshold = threshold[levs]
+  if (ttype == "classif") {
+    # divide all rows by threshold then get max el
+    p = sweep(as.matrix(p), MARGIN = 2, FUN = "/", threshold)
+    # 0 / 0 can produce NaNs. For a 0 threshold we always want Inf weight for that class
+    p[is.nan(p)] = Inf
+    ind = getMaxIndexOfRows(p)
+    pred$data$response = factor(ind, levels = seq_along(levs), labels = levs)
+  } else if (ttype == "multilabel") {
+    # substract threshold from every entry, then check if > 0, then set response level
+    p = sweep(as.matrix(p), MARGIN = 2, FUN = "-", threshold)
+    i = stri_paste("response.", levs)
+    pred$data[, i] = p > 0
+  }
+  pred$threshold = threshold
+  return(pred)
+
+}
+
+
+
+
+

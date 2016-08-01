@@ -66,40 +66,42 @@ setThreshold = function(pred, threshold) {
   return(pred)
 }
 
-setBMRThreshhold = function(bmr, threshold) {
-  checkPrediction(pred, task.type = c("classif", "multilabel"), predict.type = "prob", no.na = FALSE)
-  assertNumeric(threshold, any.missing = FALSE)
-  td = pred$task.desc
-  ttype = td$type
-  levs = td$class.levels
-  if (length(levs) == 2L && is.numeric(threshold) && length(threshold) == 1L) {
-    threshold = c(threshold, 1-threshold)
-    names(threshold) = c(td$positive, td$negative)
-  }
-  if (length(threshold > 1L) && !setequal(levs, names(threshold)))
-    stop("Threshold names must correspond to classes!")
-  p = getPredictionProbabilities(pred, cl = levs)
-  # resort so we have same order in threshold and p
-  threshold = threshold[levs]
-  if (ttype == "classif") {
-    # divide all rows by threshold then get max el
-    p = sweep(as.matrix(p), MARGIN = 2, FUN = "/", threshold)
-    # 0 / 0 can produce NaNs. For a 0 threshold we always want Inf weight for that class
-    p[is.nan(p)] = Inf
-    ind = getMaxIndexOfRows(p)
-    pred$data$response = factor(ind, levels = seq_along(levs), labels = levs)
-  } else if (ttype == "multilabel") {
-    # substract threshold from every entry, then check if > 0, then set response level
-    p = sweep(as.matrix(p), MARGIN = 2, FUN = "-", threshold)
-    i = stri_paste("response.", levs)
-    pred$data[, i] = p > 0
-  }
-  pred$threshold = threshold
-  return(pred)
 
+#' @title Set threshold for benchmark predictions.
+#'
+#' @description
+#' Set threshold of predictions buried in a \code{\link{BenchmarkResult}} object.
+#' Note that probabilities must have been predicted in order to set the threshold.
+#'  
+#' @template arg_bmr
+#' @param threshold [\code{numeric}]\cr
+#'   Threshold to produce class labels. Has to be a named vector, where names correspond to class labels.
+#'   Only for binary classification it can be a single numerical threshold for the positive class.
+#' @param task.ids [\code{character}]\cr
+#'   Tasks to set the threshold for. Default is to use all tasks.
+#' @param learner.ids [\code{character}]\cr
+#'   Learners to set the threshold for. Default is to use all learners.
+#' @return [\code{\link{BenchmarkResult}}] with changed threshold
+#'   and corresponding response.
+#' @export
+setBMRThreshold = function(bmr, threshold, task.ids = NULL, learner.ids = NULL) {
+  # assertClass(bmr, "BenchmarkResult")
+  # all.task.ids = getBMRTaskIds(bmr)
+  # all.learner.ids = getBMRLearnerIds(bmr)
+  # if (is.null(task.ids))
+  #   task.ids = all.task.ids
+  # else
+  #   assertSubset(task.ids, all.task.ids)
+  # if (is.null(learner.ids))
+  #   learner.ids = all.learner.ids
+  # else
+  #   assertSubset(learner.ids, all.learner.ids)
+
+  preds = getBMRPredictions(bmr, task.ids = task.ids, learner.ids = learner.ids)
+  lapply(seq_along(task.ids), function(i) {
+    obj = lapply(seq_along(learner.ids), function(j) {
+      bmr$results[[i]][[j]] = setThreshold(preds[[i]][[j]], threshold)
+    })
+  })
+  return(bmr)
 }
-
-
-
-
-

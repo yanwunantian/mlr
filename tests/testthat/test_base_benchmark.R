@@ -72,6 +72,9 @@ test_that("benchmark", {
 
   res = benchmark(learners = learners, tasks = tasks, resamplings = resamplings, measures = measures)
   expect_true("BenchmarkResult" %in% class(res))
+  expect_list(extractSubList(res$results$multiclass$classif.lda.featsel$extract, "FeatSelResult", simplify = FALSE), types = "TuneResult", len = 2)
+  expect_list(extractSubList(res$results$multiclass$classif.rpart.tuned$extract, "TuneResult", simplify = FALSE), types = "TuneResult", len = 2)
+  expect_list(extractSubList(res$results$multiclass$classif.lda.filtered$extract, "FilteredFeatures", simplify = FALSE), types = "character", len = 2)
 
   df = as.data.frame(res)
   expect_true(is.data.frame(df))

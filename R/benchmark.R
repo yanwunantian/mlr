@@ -22,6 +22,7 @@
 #' @param models [\code{logical(1)}]\cr
 #'   Should all fitted models be stored in the \code{\link{ResampleResult}}?
 #'   Default is \code{TRUE}.
+#' @template arg_extract
 #' @template arg_showinfo
 #' @return [\code{\link{BenchmarkResult}}].
 #' @family benchmark
@@ -39,7 +40,7 @@
 #' plotBMRRanksAsBarChart(bmr, pos = "stack")
 #' friedmanTestBMR(bmr)
 #' friedmanPostHocTestBMR(bmr, p.value = 0.05)
-benchmark = function(learners, tasks, resamplings, measures, keep.pred = TRUE, models = TRUE, show.info = getMlrOption("show.info")) {
+benchmark = function(learners, tasks, resamplings, measures, keep.pred = TRUE, models = TRUE, extract = NULL, show.info = getMlrOption("show.info")) {
   learners = ensureVector(learners, 1L, "Learner")
   assertList(learners, min.len = 1L)
   checkListElementClass(learners, "Learner")
@@ -96,7 +97,7 @@ benchmark = function(learners, tasks, resamplings, measures, keep.pred = TRUE, m
     task = grid$task,
     learner = grid$learner,
     more.args = list(learners = learners, tasks = tasks, resamplings = resamplings,
-      measures = measures, keep.pred = keep.pred, models = models, show.info = show.info),
+      measures = measures, extract = extract, keep.pred = keep.pred, models = models, show.info = show.info),
     level = plevel
   )
   results.by.task = split(results, unlist(grid$task))
@@ -140,23 +141,14 @@ benchmark = function(learners, tasks, resamplings, measures, keep.pred = TRUE, m
 #' @family benchmark
 NULL
 
-benchmarkParallel = function(task, learner, learners, tasks, resamplings, measures, keep.pred = TRUE, models = TRUE, show.info) {
+benchmarkParallel = function(task, learner, learners, tasks, resamplings, measures, keep.pred = TRUE, extract = NULL, models = TRUE, show.info) {
   setSlaveOptions()
   if (show.info)
     messagef("Task: %s, Learner: %s", task, learner)
   cl = class(learners[[learner]])
-  if ("FeatSelWrapper" %in% cl) {
-    extract.this = getFeatSelResult
-  } else if ("TuneWrapper" %in% cl) {
-    extract.this = getTuneResult
-  } else if ("FilterWrapper" %in% cl) {
-    extract.this = getFilteredFeatures
-  } else {
-    extract.this = function(model) { NULL }
-  }
   lrn = learners[[learner]]
   r = resample(learners[[learner]], tasks[[task]], resamplings[[task]],
-    measures = measures, models = models, extract = extract.this, keep.pred = keep.pred, show.info = show.info)
+    measures = measures, models = models, extract = extract, keep.pred = keep.pred, show.info = show.info)
   # store used learner in result
   r$learner = lrn
   return(r)

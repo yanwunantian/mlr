@@ -49,8 +49,7 @@ trainLearner.CostSensWeightedPairsWrapper = function(.learner, .task, .subset, .
         models[[counter]] = y[1]
       } else {
         feats$..y.. = y
-        task = makeClassifTask(data = feats, target = "..y..",
-          check.data = FALSE, fixup.data = "quiet")
+        task = makeClassifTask(data = feats, target = "..y..", check.data = FALSE)
         w = abs(costs[, a1] - costs[, a2])
         models[[counter]] = train(.learner$next.learner, task, weights = w)
       }

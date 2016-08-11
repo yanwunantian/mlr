@@ -29,8 +29,8 @@
 #' @param id [\code{character(1)}]\cr
 #'   Id string for object.
 #'   Default is the name of the R variable passed to \code{data}.
-#' @param data [\code{data.frame}]\cr
-#'   A data frame containing the features and target variable(s).
+#' @param data [\code{data.frame} | \code{\link{DataSource}}]\cr
+#'   A data frame or \code{\link{DataSource}} containing the features and target variable(s).
 #' @param target [\code{character(1)} | \code{character(2)} | \code{character(n.classes)}]\cr
 #'   Name(s) of the target variable(s).
 #'   For survival analysis these are the names of the survival time and event columns,
@@ -58,14 +58,6 @@
 #' @param positive [\code{character(1)}]\cr
 #'   Positive class for binary classification (otherwise ignored and set to NA).
 #'   Default is the first factor level of the target attribute.
-#' @param fixup.data [\code{character(1)}]\cr
-#'   Should some basic cleaning up of data be performed?
-#'   Currently this means removing empty factor levels for the columns.
-#'   Possible coices are:
-#'   \dQuote{no} = Don't do it.
-#'   \dQuote{warn} = Do it but warn about it.
-#'   \dQuote{quiet} = Do it but keep silent.
-#'   Default is \dQuote{warn}.
 #' @param check.data [\code{logical(1)}]\cr
 #'   Should sanity of data be checked initially at task creation?
 #'   You should have good reasons to turn this off (one might be speed).
@@ -86,26 +78,11 @@
 #' makeClassifTask(id = "myIonosphere", data = Ionosphere, target = "Class",
 #'   positive = "good", blocking = blocking)
 #' makeClusterTask(data = iris[, -5L])
-NULL
+makeTask = function(type, data, weights = NULL, blocking = NULL, check.data = TRUE) {
+  UseMethod("makeTask", data)
+}
 
-makeTask = function(type, data, weights = NULL, blocking = NULL, fixup.data = "warn", check.data = TRUE) {
-  if (fixup.data != "no") {
-    if (fixup.data == "quiet") {
-      data = droplevels(data)
-    } else if (fixup.data == "warn") {
-      # the next lines look a bit complicated, we calculate the warning info message
-      dropped = logical(ncol(data))
-      for (i in seq_col(data)) {
-        if (is.factor(data[[i]]) && any(table(data[[i]]) == 0L)) {
-          dropped[i] = TRUE
-          data[[i]] = droplevels(data[[i]])
-        }
-      }
-      if (any(dropped))
-        warningf("Empty factor levels were dropped for columns: %s", collapse(colnames(data)[dropped]))
-    }
-  }
-
+makeTask.data.frame = function(type, data, weights = NULL, blocking = NULL, check.data = TRUE) {
   if (check.data) {
     assertDataFrame(data, col.names = "strict")
     if (class(data)[1] != "data.frame") {

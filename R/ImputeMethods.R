@@ -285,9 +285,8 @@ imputeLearner = function(learner, features = NULL) {
       }
       # Remove all observations with missing values in the target for training. This is required
       # because it should not be possible to have tasks with missing values in the target.
-      ind = !is.na(data[[col]]) 
-      task = constructor("impute", data = subset(data[ind, ], select = features), target = col,
-        check.data = FALSE, fixup.data = "quiet")
+      ind = !is.na(data[[col]])
+      task = constructor("impute", data = subset(data[ind, ], select = features), target = col, check.data = FALSE)
       list(model = train(learner, subsetTask(task, features = features)), features = features)
     },
 

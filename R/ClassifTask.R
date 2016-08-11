@@ -1,6 +1,6 @@
 #' @export
 #' @rdname Task
-makeClassifTask = function(id = deparse(substitute(data)), data, target, weights = NULL, blocking = NULL, positive = NA_character_, fixup.data = "warn", check.data = TRUE) {
+makeClassifTask = function(id = deparse(substitute(data)), data, target, weights = NULL, blocking = NULL, positive = NA_character_, check.data = TRUE) {
   assertString(id)
   assertDataFrame(data)
   assertString(target)
@@ -8,31 +8,26 @@ makeClassifTask = function(id = deparse(substitute(data)), data, target, weights
   if (isScalarNumeric(positive))
     positive = as.character(positive)
   assertString(positive, na.ok = TRUE)
-  assertChoice(fixup.data, choices = c("no", "quiet", "warn"))
   assertFlag(check.data)
 
-  if (fixup.data != "no") {
-    x = data[[target]]
-    if (is.character(x) || is.logical(x) || is.integer(x)) {
-      data[[target]] = as.factor(x)
-    } else if (is.factor(x) && fixup.data == "warn" && any(table(x) == 0L)) {
-      warningf("Target column '%s' contains empty factor levels", target)
-      data[[target]] = droplevels(x)
-    }
-  }
+  x = data[[target]]
+  if (is.character(x) || is.logical(x) || is.integer(x))
+    data[[target]] = as.factor(x)
 
-  task = makeSupervisedTask("classif", data, target, weights, blocking, fixup.data = fixup.data, check.data = check.data)
+  task = makeSupervisedTask("classif", data, target, weights, blocking, check.data = check.data)
 
   if (check.data) {
     assertFactor(data[[target]], any.missing = FALSE, empty.levels.ok = FALSE, .var.name = target)
   }
 
+  task = addClasses(task, "ClassifTask")
   task$task.desc = makeTaskDesc.ClassifTask(task, id, target, positive)
-  addClasses(task, "ClassifTask")
+  task
 }
 
 makeTaskDesc.ClassifTask = function(task, id, target, positive) {
   levs = levels(task$env$data[[target]])
+  # levs = levels(getTaskData(task, features = target)[[1L]])
   m = length(levs)
   if (is.na(positive)) {
     if (m <= 2L)

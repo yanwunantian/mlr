@@ -1,9 +1,8 @@
 #' @rdname Task
 #' @export
-makeClusterTask = function(id = deparse(substitute(data)), data, weights = NULL, blocking = NULL, fixup.data = "warn", check.data = TRUE) {
+makeClusterTask = function(id = deparse(substitute(data)), data, weights = NULL, blocking = NULL, check.data = TRUE) {
   assertString(id)
   assertDataFrame(data)
-  assertChoice(fixup.data, choices = c("no", "quiet", "warn"))
   assertFlag(check.data)
 
   task = makeUnsupervisedTask("cluster", data, weights, blocking)

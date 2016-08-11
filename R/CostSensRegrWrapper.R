@@ -34,8 +34,7 @@ trainLearner.CostSensRegrWrapper = function(.learner, .task, .subset, ...) {
     cl = classes[i]
     y = costs[, cl]
     data = cbind(getTaskData(.task), ..y.. = y)
-    task = makeRegrTask(id = cl, data = data, target = "..y..",
-      check.data = FALSE, fixup.data = "quiet")
+    task = makeRegrTask(id = cl, data = data, target = "..y..", check.data = FALSE)
     models[[i]] = train(.learner$next.learner, task)
   }
   makeHomChainModel(.learner, models)

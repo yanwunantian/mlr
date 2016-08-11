@@ -44,20 +44,6 @@ test_that("SupervisedTask", {
   expect_true(getTaskDescription(ct2)$has.blocking)
 })
 
-test_that("SupervisedTask dropping of levels works", {
-  d = iris
-  levs1 = levels(iris$Species)
-  levs2 = c(levs1, "foo")
-  levels(d$Species) = levs2
-  task = makeRegrTask(data = d, target = colnames(iris)[1], fixup.data = "quiet")
-  e = getTaskData(task)
-  expect_true(setequal(levels(e$Species), levs1))
-  expect_warning({task = makeRegrTask(data = d, target = colnames(iris)[1], fixup.data = "warn")},
-    "Empty factor levels")
-  e = getTaskData(task)
-  expect_true(setequal(levels(e$Species), levs1))
-})
-
 test_that("SupervisedTask does not drop positive class", {
   data = iris[1:100, ]
   expect_warning({task = makeClassifTask(data = data, target = "Species")}, "empty factor levels")

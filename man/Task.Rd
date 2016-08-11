@@ -14,37 +14,40 @@
 \alias{makeMultilabelTask}
 \alias{makeRegrTask}
 \alias{makeSurvTask}
+\alias{makeTask}
 \title{Create a classification, regression, survival, cluster, cost-sensitive classification or
 multilabel task.}
 \usage{
 makeClassifTask(id = deparse(substitute(data)), data, target,
   weights = NULL, blocking = NULL, positive = NA_character_,
-  fixup.data = "warn", check.data = TRUE)
+  check.data = TRUE)
 
 makeClusterTask(id = deparse(substitute(data)), data, weights = NULL,
-  blocking = NULL, fixup.data = "warn", check.data = TRUE)
+  blocking = NULL, check.data = TRUE)
 
 makeCostSensTask(id = deparse(substitute(data)), data, costs,
-  blocking = NULL, fixup.data = "warn", check.data = TRUE)
+  blocking = NULL, check.data = TRUE)
 
 makeMultilabelTask(id = deparse(substitute(data)), data, target,
   weights = NULL, blocking = NULL, positive = NA_character_,
-  fixup.data = "warn", check.data = TRUE)
+  check.data = TRUE)
 
 makeRegrTask(id = deparse(substitute(data)), data, target, weights = NULL,
-  blocking = NULL, fixup.data = "warn", check.data = TRUE)
+  blocking = NULL, check.data = TRUE)
 
 makeSurvTask(id = deparse(substitute(data)), data, target,
   censoring = "rcens", weights = NULL, blocking = NULL,
-  fixup.data = "warn", check.data = TRUE)
+  check.data = TRUE)
+
+makeTask(type, data, weights = NULL, blocking = NULL, check.data = TRUE)
 }
 \arguments{
 \item{id}{[\code{character(1)}]\cr
 Id string for object.
 Default is the name of the R variable passed to \code{data}.}
 
-\item{data}{[\code{data.frame}]\cr
-A data frame containing the features and target variable(s).}
+\item{data}{[\code{data.frame} | \code{\link{DataSource}}]\cr
+A data frame or \code{\link{DataSource}} containing the features and target variable(s).}
 
 \item{target}{[\code{character(1)} | \code{character(2)} | \code{character(n.classes)}]\cr
 Name(s) of the target variable(s).
@@ -68,15 +71,6 @@ Default is \code{NULL} which means no blocking.}
 \item{positive}{[\code{character(1)}]\cr
 Positive class for binary classification (otherwise ignored and set to NA).
 Default is the first factor level of the target attribute.}
-
-\item{fixup.data}{[\code{character(1)}]\cr
-Should some basic cleaning up of data be performed?
-Currently this means removing empty factor levels for the columns.
-Possible coices are:
-\dQuote{no} = Don't do it.
-\dQuote{warn} = Do it but warn about it.
-\dQuote{quiet} = Do it but keep silent.
-Default is \dQuote{warn}.}
 
 \item{check.data}{[\code{logical(1)}]\cr
 Should sanity of data be checked initially at task creation?

@@ -4,13 +4,13 @@
 \alias{getData}
 \title{Retrive data from a DataSource.}
 \usage{
-getData(src, subset, features)
+getData(src, rows = NULL, cols = NULL)
 }
 \arguments{
-\item{subset}{[\code{integer}]\cr
+\item{rows}{[\code{integer}]\cr
 Subset of rows to retrieve.}
 
-\item{features}{[\code{character}]\cr
+\item{cols}{[\code{character}]\cr
 Names of features to retrieve.}
 
 \item{data}{[\code{\link{DataSource}}]\cr

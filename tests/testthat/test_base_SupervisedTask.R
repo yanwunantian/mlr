@@ -4,7 +4,7 @@ test_that("SupervisedTask", {
   ct1 = multiclass.task
 
   expect_equal(getTaskTargetNames(ct1), "Species")
-  expect_equal(getTaskTargets(ct1), multiclass.df[, multiclass.target])
+  expect_equal(getTaskTargets(ct1), multiclass.df[, multiclass.target, drop = FALSE])
 
   ct = binaryclass.task
   td = getTaskDescription(ct)

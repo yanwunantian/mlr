@@ -81,10 +81,10 @@ makeTask = function(type, data, weights = NULL, blocking = NULL, check.data = TR
   if (!inherits(data, "DataSource"))
     data = makeDataSource(data)
   if (!is.null(weights))
-    assertNumeric(weights, len = nrow(data), any.missing = FALSE, lower = 0)
+    assertNumeric(weights, len = nrow(data$data), any.missing = FALSE, lower = 0)
   if (!is.null(blocking)) {
     assertFactor(blocking, len = nrow(data), any.missing = FALSE)
-    if (length(blocking) && length(blocking) != nrow(data))
+    if (length(blocking) && length(blocking) != nrow(data$data))
       stop("Blocking has to be of the same length as number of rows in data! Or pass none at all.")
   }
 
@@ -112,7 +112,7 @@ checkTaskData = function(data, cols = names(data)) {
     }
   }
 
-  Map(fun, cn = cols, x = getData(data, features = cols))
+  Map(fun, cn = cols, x = getData(data, cols = cols))
   invisible(TRUE)
 }
 

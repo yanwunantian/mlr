@@ -7,7 +7,6 @@ test_that("DataSource constructors", {
   requireNamespace("dplyr")
   requireNamespace("RSQLite")
 
-
   # Local backend
   srcs = list(local = iris)
 
@@ -18,13 +17,12 @@ test_that("DataSource constructors", {
   dplyr::copy_to(db, df, name = "data", temporary = FALSE, indexes = list(".row"))
   srcs$sqlite = dplyr::tbl(db, "data")
 
-
   for (src in srcs) {
     data = makeDataSource(src, key = ".row")
     expect_is(data, "DataSource")
-    expect_data_frame(getData(data, features = "Species"), nrow = 150, ncol = 1)
-    expect_data_frame(getData(data, subset = 21:30, features = "Species"), nrow = 10, ncol = 1)
-    expect_equal(data.table::uniqueN(getData(data, subset = 49:51, features = "Species")$Species), 2L)
+    expect_data_frame(getData(data, cols = "Species"), nrow = 150, ncol = 1)
+    expect_data_frame(getData(data, rows = 21:30, cols = "Species"), nrow = 10, ncol = 1)
+    expect_equal(data.table::uniqueN(getData(data, rows = 49:51, cols = "Species")$Species), 2L)
     expect_equal(as.data.frame(getData(data))[, 1:4], iris[, 1:4])
 
     data = makeDataSource(src, cols = "Sepal.Length", key = ".row")

@@ -199,7 +199,7 @@ getTaskTargets = function(task, recode.target = "no") {
 
 #' @export
 getTaskTargets.SupervisedTask = function(task, recode.target = "no") {
-  y = drop(getData(task$data, features = task$task.desc$target))
+  y = drop(getData(task$data, cols = task$task.desc$target))
   recodeY(y, recode.target, task$task.desc)
 }
 
@@ -265,14 +265,14 @@ getTaskData = function(task, subset = NULL, features = NULL, target.extra = FALS
     if (is.null(features))
       features = task.features
     res = list(
-      data = getData(task$data, subset, setdiff(features, tn)),
-      target = recodeY(getData(task$data, subset, tn), type = recode.target, task$task.desc)
+      data = getData(task$data, rows = subset, cols = setdiff(features, tn)),
+      target = recodeY(getData(task$data, rows = subset, cols = tn), type = recode.target, task$task.desc)
     )
   } else {
     if (!is.null(features))
       features = union(features, tn)
 
-    res = getData(task$data, subset, features)
+    res = getData(task$data, rows = subset, cols = features)
     if (recode.target %nin% c("no", "surv")) {
       res[, tn] = recodeY(res[, tn], type = recode.target, task$task.desc)
     }
@@ -367,11 +367,10 @@ getTaskCosts = function(task, subset) {
 #' @examples
 #' task = makeClassifTask(data = iris, target = "Species")
 #' subsetTask(task, subset = 1:100)
-subsetTask = function(task, subset, features) {
-  # FIXME: we recompute the taskdesc for each subsetting. do we want that? speed?
-  # FIXME: maybe we want this independent of changeData?
-  task = changeData(task, getTaskData(task, subset, features), getTaskCosts(task, subset), task$weights)
-  if (!missing(subset)) {
+subsetTask = function(task, subset = NULL, features = NULL) {
+  task$rows = .intersect(subset, task$rows)
+  task$cols = .intersect(features, task$features)
+  if (!is.null(subset)) {
     if (task$task.desc$has.blocking)
       task$blocking = task$blocking[subset]
     if (task$task.desc$has.weights)

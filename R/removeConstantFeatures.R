@@ -36,7 +36,8 @@ removeConstantFeatures.Task = function(obj, perc = 0, dont.rm = character(0L), n
   assertCharacter(dont.rm)
   dont.rm = union(dont.rm, getTaskTargetNames(obj))
   data = removeConstantFeatures(getTaskData(obj), perc = perc, dont.rm = dont.rm, na.ignore = na.ignore, tol = tol, show.info = show.info)
-  changeData(task = obj, data = data)
+  # FIXME: inefficient!
+  subsetTask(obj, features = names(data))
 }
 
 #' @export

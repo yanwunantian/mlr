@@ -106,7 +106,7 @@ getTaskClassLevels.TaskDescMultilabel = function(x) {
 #' @family task
 #' @export
 getTaskFeatureNames = function(task) {
-  setdiff(names(task$data$data), getTaskDescription(task)$target)
+  setdiff(task$data$cols, getTaskDescription(task)$target)
 }
 
 #' Get number of features in task.
@@ -116,7 +116,7 @@ getTaskFeatureNames = function(task) {
 #' @export
 #' @family task
 getTaskNFeats = function(x) {
-  length(x$cols)
+  length(x$data$cols)
 }
 
 #' Get number of observations in task.
@@ -255,10 +255,10 @@ getTaskTargets.CostSensTask = function(task, recode.target = "no") {
 #' head(getTaskData(task, subset = 1:100, recode.target = "01"))
 getTaskData = function(task, subset = NULL, features = NULL, target.extra = FALSE, recode.target = "no") {
   checkTask(task, "Task")
-  task.features = getTaskFeatureNames(task)
   assertInteger(subset, null.ok = TRUE)
+  task.features = getTaskFeatureNames(task)
   if (!is.null(features)) {
-    assertCharacter(features)
+    assertCharacter(features, any.missing = FALSE)
     assertSubset(features, task.features)
   }
   assertLogical(target.extra)
@@ -371,8 +371,8 @@ getTaskCosts = function(task, subset) {
 #' task = makeClassifTask(data = iris, target = "Species")
 #' subsetTask(task, subset = 1:100)
 subsetTask = function(task, subset = NULL, features = NULL) {
-  task$rows = .intersect(subset, task$rows)
-  task$cols = .intersect(features, task$features)
+  task$data$rows = .intersect(subset, task$rows)
+  task$data$cols = .intersect(features, task$features)
   if (!is.null(subset)) {
     if (task$task.desc$has.blocking)
       task$blocking = task$blocking[subset]

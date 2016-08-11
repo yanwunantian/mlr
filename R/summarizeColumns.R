@@ -31,7 +31,7 @@ summarizeColumns = function(obj) {
 
 #' @export
 summarizeColumns.Task = function(obj) {
-  summarizeColumns.data.frame(obj$env$data)
+  summarizeColumns.data.frame(getTaskData(obj))
 }
 
 #' @export

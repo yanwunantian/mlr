@@ -143,7 +143,7 @@ test_that("Impute and reimpute task", {
   test.imputed = reimpute(data2, imputed.desc)
   expect_identical(imputed.data, imputed.tsk.data)
   expect_equal(class(classif.tsk), class(imputed$task))
-  expect_identical(test.imputed, imputed.test.tsk$env$data)
+  expect_identical(test.imputed, getTaskData(imputed.test.tsk))
   expect_equal(class(test.tsk), class(imputed.test.tsk))
 })
 

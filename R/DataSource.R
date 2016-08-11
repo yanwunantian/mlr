@@ -15,7 +15,7 @@
 #' @param ... [\code{any}]\cr
 #'   Additional arguments, depending on the type of \code{src}.
 #' @return [\code{DataSource}].
-#' @alias DataSource
+#' @aliases DataSource
 #' @export
 makeDataSource = function(src, rows = NULL, cols = NULL, ...) {
   UseMethod("makeDataSource")

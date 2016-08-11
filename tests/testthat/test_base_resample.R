@@ -128,8 +128,9 @@ test_that("resample has error messages when prediction fails", {
   lrn = makeLearner("classif.knn")
   lrn$properties = c(lrn$properties, c("missings"))
 
-  task = makeClassifTask("test", data = Sonar, target = "Class")
-  task$env$data$V1[1:2] = NA
+  x = Sonar
+  x$V1[1:2] = NA
+  task = makeClassifTask("test", data = x, target = "Class")
   r = crossval(lrn, task)
   expect_false(all(is.na(r$err.msgs$predict)))
 

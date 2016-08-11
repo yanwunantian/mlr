@@ -65,7 +65,7 @@ train = function(learner, task, subset, weights = NULL) {
   # no vars? then use no vars model
 
   if (length(vars) == 0L) {
-    learner.model = makeNoFeaturesModel(targets = task$env$data[subset, tn], task.desc = getTaskDescription(task))
+    learner.model = makeNoFeaturesModel(targets = getTaskData(task, subset = subset, features = tn), task.desc = getTaskDescription(task))
     time.train = 0
   } else {
     opts = getLearnerOptions(learner, c("show.learner.output", "on.learner.error", "on.learner.warning"))

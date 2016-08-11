@@ -17,7 +17,7 @@ summarizeLevels = function(obj, cols = NULL) {
 
 #' @export
 summarizeLevels.Task = function(obj, cols = NULL) {
-  summarizeLevels.data.frame(obj$env$data, cols = cols)
+  summarizeLevels.data.frame(getTaskData(obj, features = cols), cols = cols)
 }
 
 #' @export

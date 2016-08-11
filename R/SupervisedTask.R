@@ -20,7 +20,7 @@ print.SupervisedTask = function(x, print.target = TRUE, print.weights = TRUE, ..
   catf("Type: %s", td$type)
   if (print.target)
     catf("Target: %s", collapse(td$target))
-  catf("Observations: %i", td$size)
+  catf("Observations: %i", getTaskSize(x))
   catf("Features:")
   catf(printToChar(td$n.feat, collapse = "\n"))
   catf("Missings: %s", td$has.missings)

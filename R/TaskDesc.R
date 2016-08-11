@@ -43,7 +43,7 @@ makeTaskDesc = function(task, id, ...) {
 }
 
 makeTaskDescInternal = function(task, type, id, target, ...) {
-  data = getData(task$data, rows = 1)
+  data = getData(task$data, rows = 1L)
   # get classes of feature cols
   cl = vcapply(data, function(x) head(class(x), 1L))
   cl = dropNamed(cl, target)
@@ -56,7 +56,7 @@ makeTaskDescInternal = function(task, type, id, target, ...) {
     id = id,
     type = type,
     target = target,
-    size = nrow(task$data),
+    size = length(task$rows),
     n.feat = n.feat,
     has.missings = anyMissing(data),
     has.weights = !is.null(getTaskWeights(task)),

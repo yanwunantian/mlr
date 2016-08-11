@@ -116,7 +116,7 @@ getTaskFeatureNames = function(task) {
 #' @export
 #' @family task
 getTaskNFeats = function(x) {
-  sum(getTaskDescription(x)$n.feat)
+  length(x$cols)
 }
 
 #' Get number of observations in task.
@@ -126,8 +126,11 @@ getTaskNFeats = function(x) {
 #' @export
 #' @family task
 getTaskSize = function(x) {
-  getTaskDescription(x)$size
+  UseMethod("getTaskSize")
 }
+
+#' @export
+getTaskSize.Task = function(x) length(x$rows)
 
 #' @title Get formula of a task.
 #'
@@ -375,6 +378,7 @@ subsetTask = function(task, subset = NULL, features = NULL) {
       task$blocking = task$blocking[subset]
     if (task$task.desc$has.weights)
       task$weights = task$weights[subset]
+    task$task.desc$size = length(task$rows)
   }
   return(task)
 }

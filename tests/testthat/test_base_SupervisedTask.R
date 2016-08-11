@@ -46,7 +46,5 @@ test_that("SupervisedTask", {
 
 test_that("SupervisedTask does not drop positive class", {
   data = iris[1:100, ]
-  expect_warning({task = makeClassifTask(data = data, target = "Species")}, "empty factor levels")
-  td = getTaskDescription(task)
-  expect_true(setequal(c(td$positive, td$negative), unique(data$Species)))
+  expect_error(makeClassifTask(data = data, target = "Species"), "empty levels")
 })

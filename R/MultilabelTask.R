@@ -9,7 +9,7 @@ makeMultilabelTask = function(id = deparse(substitute(data)), data, target, weig
 
   task = makeSupervisedTask("multilabel", data, target, weights, blocking)
   if (check.data) {
-    x = getData(task$data, features = target)
+    x = getData(task$data, cols = target)
     for (cn in names(x))
       assertLogical(x[[cn]], any.missing = FALSE, .var.name = cn)
   }

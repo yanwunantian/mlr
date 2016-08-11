@@ -24,74 +24,67 @@ makeDataSource = function(src, rows = NULL, cols = NULL, ...) {
 #' @export
 makeDataSource.data.frame = function(src, rows = NULL, cols = NULL, ...) {
   assertCharacter(cols, any.missing = FALSE, null.ok = TRUE)
-  ee = new.env(parent = emptyenv())
-  ee$data = indexHelper(src, rows, cols)
-  ee$cols = cols %??% names(src)
-  class(ee) = c("DataSourceDataFrame", "DataSource")
-  ee
+  makeS3Obj(c("DataSourceDataFrame", "DataSource"),
+    data = as.data.table(src),
+    cols = cols %??% names(src),
+    rows = rows %??% seq_row(src)
+  )
 }
 
 #' @export
 makeDataSource.tbl = function(src, rows = NULL, cols = NULL, key = NA_character_, ...) {
   requireNamespace("dplyr")
-
   assertCharacter(cols, any.missing = FALSE, null.ok = TRUE)
   assertString(key)
-  ee = new.env(parent = emptyenv())
-  ids = dplyr::collect(dplyr::select_(src, key))[[1L]]
-  ee$data = src
-  ee$cols = cols %??% setdiff(colnames(src), key)
-  ee$ids = if (is.null(rows)) ids else intersect(ids, rows)
-  ee$key = key
-  class(ee) =  c("DataSourceTbl", "DataSource")
-  ee
+
+  makeS3Obj(c("DataSourceTbl", "DataSource"),
+    data = src,
+    cols = cols %??% setdiff(colnames(src), key),
+    rows = .intersect(rows, dplyr::collect(dplyr::select_(src, key))[[1L]]),
+    key = key
+  )
 }
 
 #' @title Retrive data from a DataSource.
 #'
 #' @param data [\code{\link{DataSource}}]\cr
 #'    \code{\link{DataSource}}.
-#' @param subset [\code{integer}]\cr
+#' @param rows [\code{integer}]\cr
 #'   Subset of rows to retrieve.
-#' @param features [\code{character}]\cr
+#' @param cols [\code{character}]\cr
 #'   Names of features to retrieve.
 #' @return [\code{data.frame}].
 #' @export
-getData = function(src, subset, features) {
+getData = function(src, rows = NULL, cols = NULL) {
   UseMethod("getData")
 }
 
 #' @export
-getData.DataSourceDataFrame = function(data, subset = NULL, features = NULL) {
-  indexHelper(data$data, subset, features)
+getData.DataSourceDataFrame = function(data, rows = NULL, cols = NULL) {
+  indexHelper = function(data, i, j) {
+    switch(2L * is.null(i) + is.null(j) + 1L,
+        data[i, j, drop = FALSE, with = FALSE],
+        data[i, , drop = FALSE],
+        data[ , j, drop = FALSE, with = FALSE],
+        data)
+  }
+  res = setDF(indexHelper(data$data, .intersect(data$rows, rows), .intersect(data$cols, cols)))
+  return(res)
 }
 
 #' @export
-getData.DataSourceTbl = function(data, subset = NULL, features = NULL) {
+getData.DataSourceTbl = function(data, rows = NULL, cols = NULL) {
   requireNamespace("dplyr")
   requireNamespace("lazyeval")
-
-  tmp = is.null(subset) && is.null(data$ids)
-  if (is.null(subset) && is.null(data$ids)) {
-      res = data$data
-  } else {
-    ids = if (!is.null(subset) && !is.null(data$ids)) intersect(subset, data$ids) else subset %??% data$ids
-    res = dplyr::filter_(data$data, lazyeval::interp("key %in% ids", key = as.name(data$key), ids = ids))
-  }
-
-  if (is.null(features)) {
-    res = dplyr::select_(res, ~dplyr::one_of(data$cols))
-  } else {
-    assertSubset(features, data$cols)
-    res = dplyr::select_(res, ~dplyr::one_of(features))
-  }
-  dplyr::collect(res)
+  rows = .intersect(data$rows, rows)
+  cols = .intersect(data$cols, cols)
+  res = if (is.null(rows)) data$data else dplyr::filter_(data$data, lazyeval::interp("key %in% ids", key = as.name(data$key), ids = rows))
+  res = dplyr::select_(res, ~dplyr::one_of(cols))
+  as.data.frame(dplyr::collect(res))
 }
 
-indexHelper = function(data, i, j) {
-  switch(2L * is.null(i) + is.null(j) + 1L,
-      data[i, j, drop = FALSE],
-      data[i, , drop = FALSE],
-      data[ , j, drop = FALSE],
-      data)
+.intersect = function(x, y) {
+    if (is.null(x)) return(y)
+    if (is.null(y)) return(x)
+    intersect(x, y)
 }

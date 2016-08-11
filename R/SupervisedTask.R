@@ -4,10 +4,10 @@ makeSupervisedTask = function(type, data, target, weights = NULL, blocking = NUL
   if (check.data) {
     # costsens does not have a target col...
     # assertCharacter(target, any.missing = FALSE, min.len = 1L)
-    w = which.first(target %nin% colnames(data))
+    w = which.first(target %nin% names(task$data$data)) # FIXME: use own S3 fun
     if (length(w) > 0L)
       stopf("Column names of data doesn't contain target var: %s", target[w])
-    checkTaskData(task$env$data, cols = setdiff(colnames(data), target))
+    # checkTaskData(task$data$data, cols = setdiff(colnames(data), target))
   }
 
   addClasses(task, "SupervisedTask")

@@ -9,8 +9,9 @@ makeMultilabelTask = function(id = deparse(substitute(data)), data, target, weig
 
   task = makeSupervisedTask("multilabel", data, target, weights, blocking)
   if (check.data) {
-    for (cn in target)
-      assertLogical(task$env$data[[cn]], any.missing = FALSE, .var.name = cn)
+    x = getData(task$data, features = target)
+    for (cn in names(x))
+      assertLogical(x[[cn]], any.missing = FALSE, .var.name = cn)
   }
   task$task.desc = makeTaskDesc.MultilabelTask(task, id, target)
   addClasses(task, "MultilabelTask")

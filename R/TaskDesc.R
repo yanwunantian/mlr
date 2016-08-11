@@ -43,7 +43,7 @@ makeTaskDesc = function(task, id, ...) {
 }
 
 makeTaskDescInternal = function(task, type, id, target, ...) {
-  data = task$env$data
+  data = getData(task$data)
   # get classes of feature cols
   cl = vapply(data, function(x) head(class(x), 1L), character(1L))
   cl = dropNamed(cl, target)
@@ -63,5 +63,3 @@ makeTaskDescInternal = function(task, type, id, target, ...) {
     has.blocking = !is.null(task$blocking)
   )
 }
-
-

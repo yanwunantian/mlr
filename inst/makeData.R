@@ -7,18 +7,17 @@ dn = "../data"
 stopifnot(isDirectory(dn))
 DATASEED = 7761
 
+
 # classification
 set.seed(DATASEED)
 data(iris, package = "datasets")
 iris.task = makeClassifTask("iris-example", data = iris, target = "Species")
 save(iris.task, file = file.path(dn, "iris.task.RData"))
 
-
 set.seed(DATASEED)
 data(Sonar, package = "mlbench")
 sonar.task = makeClassifTask("Sonar-example", data = Sonar, target = "Class")
 save(sonar.task, file = file.path(dn, "sonar.task.RData"), compress = "xz")
-
 
 set.seed(DATASEED)
 data(BreastCancer, package = "mlbench")
@@ -31,6 +30,7 @@ set.seed(DATASEED)
 data(PimaIndiansDiabetes, package = "mlbench")
 pid.task = makeClassifTask("PimaIndiansDiabetes-example", data = PimaIndiansDiabetes, target = "diabetes", positive = "pos")
 save(pid.task, file = file.path(dn, "pid.task.RData"), compress = "xz")
+
 
 # regression
 set.seed(DATASEED)
@@ -47,7 +47,6 @@ wpbc = wpbc[complete.cases(wpbc), ]
 wpbc.task = makeSurvTask("wpbc-example", data = wpbc, target = c("time", "status"))
 save(wpbc.task, file = file.path(dn, "wpbc.task.RData"), compress = "xz")
 
-
 set.seed(DATASEED)
 data(lung, package = "survival")
 lung$status = lung$status - 1
@@ -61,7 +60,6 @@ set.seed(DATASEED)
 data(mtcars, package = "datasets")
 mtcars.task = makeClusterTask("mtcars-example", data = mtcars)
 save(mtcars.task, file = file.path(dn, "mtcars.task.RData"), compress = "xz")
-
 
 set.seed(DATASEED)
 data(agriculture, package = "cluster")
@@ -77,11 +75,9 @@ iris$Species = NULL
 costiris.task = makeCostSensTask("cost-sensitive iris-example", data = iris, cost = cost)
 save(costiris.task, file = file.path(dn, "costiris.task.RData"), compress = "xz")
 
+
 # multilabel
 set.seed(DATASEED)
 d = load2("../thirdparty/yeast.RData")
 yeast.task = makeMultilabelTask("yeast-example", data = d, target = paste0("label", 1:14))
 save(yeast.task, file = file.path(dn, "yeast.task.RData"), compress = "xz")
-
-
-

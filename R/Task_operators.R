@@ -106,7 +106,7 @@ getTaskClassLevels.TaskDescMultilabel = function(x) {
 #' @family task
 #' @export
 getTaskFeatureNames = function(task) {
-  setdiff(names(task$env$data), getTaskDescription(task)$target)
+  setdiff(names(task$data$data), getTaskDescription(task)$target)
 }
 
 #' Get number of features in task.
@@ -199,7 +199,7 @@ getTaskTargets = function(task, recode.target = "no") {
 
 #' @export
 getTaskTargets.SupervisedTask = function(task, recode.target = "no") {
-  y = task$env$data[, task$task.desc$target, drop = TRUE]
+  y = drop(getData(task$data, features = task$task.desc$target))
   recodeY(y, recode.target, task$task.desc)
 }
 
@@ -250,62 +250,29 @@ getTaskTargets.CostSensTask = function(task, recode.target = "no") {
 #' head(getTaskData)
 #' head(getTaskData(task, features = c("Cell.size", "Cell.shape"), recode.target = "-1+1"))
 #' head(getTaskData(task, subset = 1:100, recode.target = "01"))
-getTaskData = function(task, subset, features, target.extra = FALSE, recode.target = "no") {
+getTaskData = function(task, subset = NULL, features = NULL, target.extra = FALSE, recode.target = "no") {
   checkTask(task, "Task")
-
-  if (missing(subset)) {
-    subset = NULL
-  } else {
-    assert(checkIntegerish(subset), checkLogical(subset))
-    if (is.logical(subset))
-      subset = which(subset)
-    if (is.numeric(subset))
-      subset = asInteger(subset)
+  task.features = getTaskFeatureNames(task)
+  assertInteger(subset, null.ok = TRUE)
+  if (!is.null(features)) {
+    assertCharacter(features)
+    assertSubset(features, task.features)
   }
-
   assertLogical(target.extra)
 
-  task.features = getTaskFeatureNames(task)
-
-  # if supplied check if the input is right and always convert 'features'
-  # to character vec
-  if (!missing(features)) {
-    assert(checkIntegerish(features, lower = 1L, upper = length(task.features)),
-      checkLogical(features), checkCharacter(features))
-    if (is.numeric(features))
-      features = asInteger(features)
-    if (!is.character(features))
-      features = task.features[features]
-  }
-
   tn = task$task.desc$target
-
-  indexHelper = function(df, i, j, drop = TRUE) {
-    switch(2L * is.null(i) + is.null(j) + 1L,
-      df[i, j, drop = drop],
-      df[i,  , drop = drop],
-      df[ , j, drop = drop],
-      df
-    )
-  }
-
-  if (missing(subset) || identical(subset, seq_len(task$task.desc$size)))
-    subset = NULL
-
   if (target.extra) {
-    if (missing(features))
+    if (is.null(features))
       features = task.features
     res = list(
-      data = indexHelper(task$env$data, subset, setdiff(features, tn), drop = FALSE),
-      target = recodeY(indexHelper(task$env$data, subset, tn), type = recode.target, task$task.desc)
+      data = getData(task$data, subset, setdiff(features, tn)),
+      target = recodeY(getData(task$data, subset, tn), type = recode.target, task$task.desc)
     )
   } else {
-    if (missing(features) || identical(features, task.features))
-      features = NULL
-    else
+    if (!is.null(features))
       features = union(features, tn)
 
-    res = indexHelper(task$env$data, subset, features, drop = FALSE)
+    res = getData(task$data, subset, features)
     if (recode.target %nin% c("no", "surv")) {
       res[, tn] = recodeY(res[, tn], type = recode.target, task$task.desc)
     }
@@ -445,8 +412,9 @@ changeData = function(task, data, costs, weights) {
 # returns factor levels of all factors in a task a named list of char vecs
 # non chars do not occur in the output
 getTaskFactorLevels = function(task) {
-  cols = vlapply(task$env$data, is.factor)
-  lapply(task$env$data[cols], levels)
+  data = getData(task$data)
+  cols = vlapply(data, is.factor)
+  lapply(data[cols], levels)
 }
 
 getTaskWeights = function(task) {

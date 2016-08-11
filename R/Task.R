@@ -14,8 +14,7 @@
 #'
 #' Object members:
 #' \describe{
-#' \item{env [\code{environment}]}{Environment where data for the task are stored.
-#'   Use \code{\link{getTaskData}} in order to access it.}
+#' \item{data [\code{DataSource}]}{Data. Use \code{\link{getTaskData}} in order to access it.}
 #' \item{weights [\code{numeric}]}{See argument. \code{NULL} if not present.}
 #' \item{blocking [\code{factor}]}{See argument. \code{NULL} if not present.}
 #' \item{task.desc [\code{\link{TaskDesc}}]}{Encapsulates further information about the task.}
@@ -79,30 +78,19 @@
 #'   positive = "good", blocking = blocking)
 #' makeClusterTask(data = iris[, -5L])
 makeTask = function(type, data, weights = NULL, blocking = NULL, check.data = TRUE) {
-  UseMethod("makeTask", data)
-}
-
-makeTask.data.frame = function(type, data, weights = NULL, blocking = NULL, check.data = TRUE) {
-  if (check.data) {
-    assertDataFrame(data, col.names = "strict")
-    if (class(data)[1] != "data.frame") {
-      warningf("Provided data is not a pure data.frame but from class %s, hence it will be converted.", class(data)[1])
-      data = as.data.frame(data)
-    }
-    if (!is.null(weights))
-      assertNumeric(weights, len = nrow(data), any.missing = FALSE, lower = 0)
-    if (!is.null(blocking)) {
-      assertFactor(blocking, len = nrow(data), any.missing = FALSE)
-      if (length(blocking) && length(blocking) != nrow(data))
-        stop("Blocking has to be of the same length as number of rows in data! Or pass none at all.")
-    }
+  if (!inherits(data, "DataSource"))
+    data = makeDataSource(data)
+  if (!is.null(weights))
+    assertNumeric(weights, len = nrow(data), any.missing = FALSE, lower = 0)
+  if (!is.null(blocking)) {
+    assertFactor(blocking, len = nrow(data), any.missing = FALSE)
+    if (length(blocking) && length(blocking) != nrow(data))
+      stop("Blocking has to be of the same length as number of rows in data! Or pass none at all.")
   }
 
-  env = new.env(parent = emptyenv())
-  env$data = data
   makeS3Obj("Task",
     type = type,
-    env = env,
+    data = data,
     weights = weights,
     blocking = blocking,
     task.desc = NA
@@ -124,7 +112,7 @@ checkTaskData = function(data, cols = names(data)) {
     }
   }
 
-  Map(fun, cn = cols, x = data[cols])
+  Map(fun, cn = cols, x = getData(data, features = cols))
   invisible(TRUE)
 }
 

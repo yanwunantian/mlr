@@ -2,7 +2,7 @@ makeUnsupervisedTask = function(type, data, weights = NULL, blocking = NULL, che
   task = makeTask(type, data, weights, blocking, check.data = check.data)
   # we can't use getTaskData to access the tasks's data here because we then
   # want to access the description object which is not existing yet
-  checkTaskData(task$env$data)
+  # checkTaskData(task$env$data)
   addClasses(task, "UnsupervisedTask")
 }
 

@@ -34,7 +34,6 @@ makeDataSource.data.frame = function(src, rows = NULL, cols = NULL, ...) {
 #' @export
 makeDataSource.tbl = function(src, rows = NULL, cols = NULL, key = NA_character_, ...) {
   requireNamespace("dplyr")
-  requireNamespace("lazyeval")
 
   assertCharacter(cols, any.missing = FALSE, null.ok = TRUE)
   assertString(key)
@@ -69,6 +68,9 @@ getData.DataSourceDataFrame = function(data, subset = NULL, features = NULL) {
 
 #' @export
 getData.DataSourceTbl = function(data, subset = NULL, features = NULL) {
+  requireNamespace("dplyr")
+  requireNamespace("lazyeval")
+
   tmp = is.null(subset) && is.null(data$ids)
   if (is.null(subset) && is.null(data$ids)) {
       res = data$data

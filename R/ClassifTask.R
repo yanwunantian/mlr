@@ -26,8 +26,7 @@ makeClassifTask = function(id = deparse(substitute(data)), data, target, weights
 }
 
 makeTaskDesc.ClassifTask = function(task, id, target, positive) {
-  levs = levels(task$env$data[[target]])
-  # levs = levels(getTaskData(task, features = target)[[1L]])
+  levs = levels(getData(task$data, features = target)[[1L]])
   m = length(levs)
   if (is.na(positive)) {
     if (m <= 2L)

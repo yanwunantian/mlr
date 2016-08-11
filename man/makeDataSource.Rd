@@ -4,7 +4,7 @@
 \alias{makeDataSource}
 \title{Create a Data Source backend for mlr Tasks.}
 \usage{
-makeDataSource(src, cols = NULL, ...)
+makeDataSource(src, rows = NULL, cols = NULL, ...)
 }
 \arguments{
 \item{src}{[\code{\link[base]{data.frame}} | \code{\link[dplyr]{tbl}}]\cr
@@ -14,14 +14,17 @@ makeDataSource(src, cols = NULL, ...)
     \item[\code{\link[dplyr]{tbl}}]{Tables as used in \pkg{dplyr}. Can use a SQL backend.}
   }}
 
+\item{rows}{[\code{integer} | \code{NULL}]\cr
+Subset of rows to use in the task. Additional rows are ignored.}
+
 \item{cols}{[\code{character} | \code{NULL}]\cr
 Subset of columns to use in the task. Additional columns in \code{src} are ignored.}
 
 \item{...}{[\code{any}]\cr
 Additional arguments, depending on the type of \code{src}.}
 
-\item{rows}{[\code{integer} | \code{NULL}]\cr
-Subset of rows to use in the task. Additional rows are ignored.}
+\item{key}{[\code{character}]\cr
+Required for database backends: Name of the primary key column.}
 }
 \value{
 [\code{DataSource}].

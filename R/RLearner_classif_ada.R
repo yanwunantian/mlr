@@ -36,6 +36,7 @@ makeRLearner.classif.ada = function() {
 #' @export
 trainLearner.classif.ada = function(.learner, .task, .subset, .weights = NULL,  ...) {
   f = getTaskFormula(.task)
+<<<<<<< HEAD
   #put all rpart.control parameters into a list named 'control'
   dots = list(...)
   to.list = names(formals(rpart::rpart.control))
@@ -43,16 +44,28 @@ trainLearner.classif.ada = function(.learner, .task, .subset, .weights = NULL,  
   dots = dropNamed(dots, to.list)
   args = c(dots, control = list(list))
   h.ada = function(...) {
+=======
+  dots = list(...)
+  # get names of rpart.control args
+  ctrl.names = names(formals(rpart::rpart.control))
+  # subset args into contrl.args and all other args (dots)
+  ctrl.args = dots[intersect(names(dots), ctrl.names)]
+  dots = dropNamed(dots, ctrl.names)
+  # execute ada with proper args
+  ada.args = c(dots, control = list(ctrl.args))
+  ada.fun = function(...) {
+>>>>>>> upstream/master
     ada::ada(f, getTaskData(.task, .subset), ...)
   }
-  do.call(h.ada, args)
+  do.call(ada.fun, ada.args)
 }
 
 #' @export
 predictLearner.classif.ada = function(.learner, .model, .newdata, ...) {
-  type = ifelse(.learner$predict.type=="response", "vector", "prob")
-  p = predict(.model$learner.model, newdata = .newdata, type = type, ...)
-  if (type == "prob")
-    colnames(p) = rownames(.model$learner.model$confusion)
+  type = ifelse(.learner$predict.type == "response", "vector", "probs")
+  mod = getLearnerModel(.model)
+  p = predict(mod, newdata = .newdata, type = type, ...)
+  if (type == "probs")
+    colnames(p) = rownames(mod$confusion)
   return(p)
 }

@@ -75,7 +75,7 @@ test_that("db with single cluster doesn't give warnings", {
 test_that("mcc is implemented correctly", { # see issue 363
   r = holdout("classif.rpart", sonar.task, measure = mcc)
   p = as.data.frame(r$pred)
-  cm = getConfMatrix(r$pred)[1:2, 1:2]
+  cm = calculateConfusionMatrix(r$pred)$result[1:2, 1:2]
 
   # taken from psych::phi. the phi measure is another name for mcc
   r.sum = rowSums(cm)
@@ -563,6 +563,14 @@ test_that("check measure calculations", {
     model = mod.cluster, feats = data.cluster)
   expect_equal(silhouette.test, silhouette$fun(pred = pred.cluster, feats = data.cluster))
   expect_equal(object = silhouette.test, as.numeric(silhouette.perf))
+})
+
+test_that("getDefaultMeasure", {
+  expect_equal(mmce, getDefaultMeasure(iris.task))
+  expect_equal(mmce, getDefaultMeasure(getTaskDescription(iris.task)))
+  expect_equal(mmce, getDefaultMeasure(makeLearner("classif.rpart")))
+  expect_equal(mmce, getDefaultMeasure("classif.rpart"))
+  expect_equal(mmce, getDefaultMeasure("classif"))
 })
 
 test_that("measures quickcheck", {

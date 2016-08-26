@@ -5,8 +5,9 @@ makeRLearner.regr.pcr = function() {
     package = "pls",
     par.set = makeParamSet(
       makeIntegerLearnerParam(id = "ncomp", lower = 1L),
-      makeDiscreteLearnerParam(id = "method", default = "cppls",
-        values = c("kernelpls", "widekernelpls", "simpls", "oscorespls", "cppls", "svdpc")),
+      # FIXME: We need learners: mvr, plsr, cppls
+      # makeDiscreteLearnerParam(id = "method", default = "svdpc",
+        # values = c("kernelpls", "widekernelpls", "simpls", "oscorespls", "cppls", "svdpc")),
       makeLogicalLearnerParam(id = "scale", default = FALSE),
       makeLogicalLearnerParam(id = "model", default = TRUE, tunable = FALSE),
       makeLogicalLearnerParam(id = "x", default = FALSE, tunable = FALSE),

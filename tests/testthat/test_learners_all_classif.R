@@ -25,6 +25,7 @@ test_that("learners work: classif ", {
   lrns = mylist(task, create = TRUE)
   lapply(lrns, testThatLearnerParamDefaultsAreInParamSet)
   lapply(lrns, testThatLearnerCanTrainPredict, task = task, hyperpars = hyperpars)
+  lapply(lrns, testThatLearnerParamDefaultsAreTrueDefaults)
 
   # binary classif with factors
   lrns = mylist("classif", properties = "factors", create = TRUE)

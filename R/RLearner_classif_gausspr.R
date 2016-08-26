@@ -5,7 +5,9 @@ makeRLearner.classif.gausspr = function() {
     package = "kernlab",
     # FIXME: stringdot pars and check order, scale and offset limits
     par.set = makeParamSet(
-      makeLogicalLearnerParam(id = "scaled", default = TRUE),
+      # FIXME: param scaled is behaving strangely, setting default doesnt work, see this code
+      # kernlab::gausspr(Species~., data = getTaskData(iris.task), scaled = TRUE)
+      # makeLogicalVectorLearnerParam(id = "scaled", default = TRUE),
       makeDiscreteLearnerParam(id = "kernel", default = "rbfdot",
         values = c("vanilladot", "polydot", "rbfdot", "tanhdot", "laplacedot",
           "besseldot", "anovadot", "splinedot")),
@@ -33,7 +35,7 @@ makeRLearner.classif.gausspr = function() {
 
 #' @export
 trainLearner.classif.gausspr = function(.learner, .task, .subset, .weights = NULL,
-  degree, offset, scale, sigma, order, length, lambda, normalized,  ...) {
+  degree, offset, scale, sigma, order, length, lambda, normalized, ...) {
   kpar = learnerArgsToControl(list, degree, offset, scale, sigma, order, length, lambda, normalized)
   f = getTaskFormula(.task)
   pm = .learner$predict.type == "prob"

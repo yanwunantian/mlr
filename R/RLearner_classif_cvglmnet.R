@@ -31,8 +31,9 @@ makeRLearner.classif.cvglmnet = function() {
       makeNumericLearnerParam(id = "pmin", default = 1.0e-9, lower = 0, upper = 1),
       makeNumericLearnerParam(id = "exmx", default = 250.0),
       makeNumericLearnerParam(id = "prec", default = 1e-10),
-      makeIntegerLearnerParam(id = "mxit", default = 100L, lower = 1L),
-      makeLogicalLearnerParam(id = "factory", default = FALSE)
+      makeIntegerLearnerParam(id = "mxit", default = 100L, lower = 1L)# ,
+      # not a param of function?
+      # makeLogicalLearnerParam(id = "factory", default = FALSE)
     ),
     properties = c("numerics", "factors", "prob", "twoclass", "multiclass", "weights"),
     name = "GLM with Lasso or Elasticnet Regularization (Cross Validated Lambda)",

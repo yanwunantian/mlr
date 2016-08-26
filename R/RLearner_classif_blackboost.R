@@ -30,9 +30,11 @@ makeRLearner.classif.blackboost = function() {
 }
 
 #' @export
-trainLearner.classif.blackboost = function(.learner, .task, .subset, .weights = NULL, mstop, nu, risk, teststat, testtype, mincriterion, maxdepth, stump, ...) {
+trainLearner.classif.blackboost = function(.learner, .task, .subset, .weights = NULL, mstop, nu, risk, teststat, testtype,
+  mincriterion, minsplit, minbucket, stump, nresample, maxsurrogate, mtry, savesplitstats, maxdepth, ...) {
   ctrl = learnerArgsToControl(mboost::boost_control, mstop, nu, risk)
-  tc = learnerArgsToControl(party::ctree_control, teststat, testtype, mincriterion, maxdepth, stump)
+  tc = learnerArgsToControl(party::ctree_control, teststat, testtype, mincriterion,
+    minsplit, minbucket, stump, nresample, maxsurrogate, mtry, savesplitstats, maxdepth)
   f = getTaskFormula(.task)
   if (!is.null(.weights))
     mboost::blackboost(f, data = getTaskData(.task, .subset), control = ctrl, tree_controls = tc, weights = .weights, ...)

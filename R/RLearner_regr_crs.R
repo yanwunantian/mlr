@@ -4,8 +4,8 @@ makeRLearner.regr.crs = function() {
     cl = "regr.crs",
     package = "!crs",
     par.set = makeParamSet(
-      makeIntegerVectorLearnerParam(id = "degree", default = 3, lower = 0),
-      makeIntegerVectorLearnerParam(id = "segments", default = 1, lower = 1),
+      makeIntegerVectorLearnerParam(id = "degree", lower = 0),
+      makeIntegerVectorLearnerParam(id = "segments", lower = 1),
       makeIntegerVectorLearnerParam(id = "lambda"),
       makeLogicalLearnerParam(id = "lambda.discrete", default = FALSE),
       makeIntegerLearnerParam(id = "lambda.discrete.num", default = 100, lower = 0,

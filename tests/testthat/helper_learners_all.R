@@ -183,3 +183,29 @@ testThatLearnerParamDefaultsAreInParamSet = function(lrn) {
   pv = lrn$par.vals
   expect_true(isSubset(names(pv), names(pars)))
 }
+
+
+testThatLearnerParamDefaultsAreTrueDefaults = function(lrn, task) {
+  par.defaults = getParamSet(lrn)$pars
+  if (length(par.defaults) > 0L) {
+    par.has.default = extractSubList(par.defaults, "has.default")
+    par.not.requires = extractSubList(par.defaults, "requires")
+    par.not.requires = unlist(lapply(par.not.requires, is.null))
+    par.defaults = par.defaults[par.has.default & par.not.requires]
+    par.defaults = extractSubList(par.defaults, "default", simplify = FALSE)
+
+    # drop params with mlr-specific default
+    par.defaults = par.defaults[which(names(par.defaults) %nin% names(getHyperPars(lrn)))]
+
+    set.seed(getOption("mlr.debug.seed"))
+    mod = train(lrn, task)
+    preds = predict(mod, task)$data$response
+    
+    lrn = setHyperPars(lrn, par.vals = par.defaults)
+    set.seed(getOption("mlr.debug.seed"))
+    mod.defaults = train(lrn, task)
+    preds.defaults = predict(mod.defaults, task)$data$response
+    all.equal(preds.defaults, preds)
+  }
+}
+

@@ -9,7 +9,7 @@ makeRLearner.regr.glmboost = function() {
       makeNumericLearnerParam(id = "nu", default = 0.1, lower = 0, upper = 1),
       makeDiscreteLearnerParam(id = "risk", values = c("inbag", "oobag", "none")),
       makeLogicalLearnerParam(id = "stopintern", default = FALSE),
-      makeLogicalLearnerParam(id = "center", default = FALSE),
+      makeLogicalLearnerParam(id = "center", default = TRUE),
       makeLogicalLearnerParam(id = "trace", default = FALSE, tunable = FALSE),
       makeDiscreteLearnerParam(id = "m", default = "mstop", values = c("mstop", "cv", "aic"))
       ),
@@ -22,8 +22,8 @@ makeRLearner.regr.glmboost = function() {
   )
 }
 #' @export
-trainLearner.regr.glmboost = function(.learner, .task, .subset, .weights = NULL, mstop, nu, m, risk, trace, stopintern, ...) {
-  ctrl = learnerArgsToControl(mboost::boost_control, mstop, nu, risk, trace, stopintern)
+trainLearner.regr.glmboost = function(.learner, .task, .subset, .weights = NULL, mstop, nu, m, risk, trace, stopintern, center, ...) {
+  ctrl = learnerArgsToControl(mboost::boost_control, mstop, nu, risk, trace, stopintern, center)
   d = getTaskData(.task, .subset)
   f = getTaskFormula(.task)
   if (is.null(.weights)) {

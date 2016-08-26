@@ -38,10 +38,10 @@ trainLearner.regr.avNNet = function(.learner, .task, .subset, .weights = NULL, .
   nms = names(.learner$par.vals)
   ind = stri_detect_regex(nms, "repeats")
   if (sum(ind)>0)
-    repeats = .learner$par.vals[[ind]]
+    repeats = .learner$par.vals[[which(ind)]]
   ind = stri_detect_regex(nms, "bag")
   if (sum(ind)>0)
-    bag = .learner$par.vals[[ind]]
+    bag = .learner$par.vals[[which(ind)]]
   
   assertInt(repeats, lower = 1)
   assertFlag(bag)

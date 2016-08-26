@@ -8,8 +8,9 @@ makeRLearner.classif.hdrda = function() {
       makeNumericLearnerParam(id = "gamma", default = 0),
       makeDiscreteLearnerParam(id = "shrinkage_type", default = "ridge", values = c("ridge", "convex")),
       makeNumericVectorLearnerParam(id = "prior"),
-      makeNumericLearnerParam(id = "tol", default = 1e-06),
-      makeLogicalLearnerParam(id = "projected", default = FALSE)
+      makeNumericLearnerParam(id = "tol", default = 1e-06)# ,
+      # only param of prediction function, do we need this? (increases speed)
+      # makeLogicalLearnerParam(id = "projected", default = FALSE)
     ),
     properties = c("numerics", "twoclass", "prob"),
     name = "High-Dimensional Regularized Discriminant Analysis",

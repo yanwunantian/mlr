@@ -5,7 +5,8 @@ makeRLearner.regr.gausspr = function() {
     package = "kernlab",
     # FIXME: stringdot pars and check order, scale and offset limits
     par.set = makeParamSet(
-      makeLogicalLearnerParam(id = "scaled", default = TRUE),
+      # scaled parameter behaves strangely for any input other than NULL
+      # makeLogicalLearnerParam(id = "scaled", default = TRUE),
       makeDiscreteLearnerParam(id = "kernel", default = "rbfdot",
         values = c("vanilladot", "polydot", "rbfdot", "tanhdot", "laplacedot",
           "besseldot", "anovadot", "splinedot")),

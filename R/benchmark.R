@@ -7,8 +7,9 @@
 #' Furthermore, you can of course pass \dQuote{enhanced} learners via wrappers, e.g., a
 #' learner can be automatically tuned using \code{\link{makeTuneWrapper}}.
 #'
-#' @param learners [(list of) \code{\link{Learner}}]\cr
-#'   Learning algorithms which should be compared.
+#' @param learners [(list of) \code{\link{Learner}} | \code{character}]\cr
+#'   Learning algorithms which should be compared, can also be a single learner.
+#'   If you pass strings the learners will be created via \code{\link{makeLearner}}.
 #' @param tasks [(list of) \code{\link{Task}}]\cr
 #'   Tasks that learners should be run on.
 #' @param resamplings [(list of) \code{\link{ResampleDesc}} | \code{\link{ResampleInstance}}]\cr

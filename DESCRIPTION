@@ -109,6 +109,7 @@ Suggests:
     nodeHarvest (>= 0.7-3),
     neuralnet,
     numDeriv,
+    openml-r,
     pamr,
     party,
     penalized (>= 0.9-47),
@@ -147,6 +148,7 @@ Suggests:
     XML
 Remotes:
     github::mllg/batchtools
+    github::openml/openml-r
 LazyData: yes
 ByteCompile: yes
 Version: 2.10

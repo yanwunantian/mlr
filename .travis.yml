@@ -33,6 +33,7 @@ r_github_packages:
   - RevolutionAnalytics/quickcheck/pkg
   - mllg/checkmate
   - mllg/batchtools
+  - openml/openml-r
 
 before_install:
   - mkdir $HOME/bin

@@ -9,6 +9,7 @@
   usesfuzzy matching to suggest the 3 closest names in the message
 * tuneParams: tuning with irace is now also parallelized, i.e., different
   learner config are evaluated in parallel.
+* benchmark: mini fix, arg 'learners' now also accepts class strings
 * randomForestSRC.var.select: new arg "method"
 * mrmr filter: fixed some smaller bugs and updated properties
 * generateLearningCurveData: also accepts single learner, does not require a list
@@ -60,6 +61,8 @@
 
 ## learners - new
 * multilabel.cforest
+* surv.gbm
+* regr.cvglmnet
 
 ## learners - removed
 
@@ -629,7 +632,7 @@
 
 # mlr 2.0:
 * mlr now supports survival analysis models (experimental)
-* mlr now supports cost-sensitive learning with example-specific costs 
+* mlr now supports cost-sensitive learning with example-specific costs
   experimental)
 * Some example tasks and data sets were added for simple access
 * added FeatSelWrapper and getFeatSelResult

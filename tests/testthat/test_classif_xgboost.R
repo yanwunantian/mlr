@@ -54,8 +54,8 @@ test_that("classif_xgboost", {
   testSimpleParsets("classif.xgboost", binaryclass.df, binaryclass.target,
     binaryclass.train.inds, old.predicts.list, parset.list)
 
-  testProbParsets("classif.xgboost", binaryclass.df, binaryclass.target,
-    binaryclass.train.inds, old.probs.list, parset.probs.list)
+  expect_warning(testProbParsets("classif.xgboost", binaryclass.df, binaryclass.target,
+    binaryclass.train.inds, old.probs.list, parset.probs.list))
 })
 
 test_that("xgboost works with different 'missing' arg vals", {

@@ -130,7 +130,7 @@ getTaskSize = function(x) {
 }
 
 #' @export
-getTaskSize.Task = function(x) length(x$rows)
+getTaskSize.Task = function(x) length(x$data$rows)
 
 #' @title Get formula of a task.
 #'
@@ -256,7 +256,7 @@ getTaskTargets.CostSensTask = function(task, recode.target = "no") {
 getTaskData = function(task, subset = NULL, features = NULL, target.extra = FALSE, recode.target = "no") {
   checkTask(task, "Task")
   assertInteger(subset, null.ok = TRUE)
-  task.features = getTaskFeatureNames(task)
+  task.features = c(getTaskFeatureNames(task), getTaskTargetNames(task))
   if (!is.null(features)) {
     assertCharacter(features, any.missing = FALSE)
     assertSubset(features, task.features)

@@ -48,7 +48,9 @@ Imports:
     parallelMap (>= 1.3),
     shiny,
     survival,
-    utils
+    utils,
+    dplyr,
+    lazyeval
 Suggests:
     ada,
     adabag,

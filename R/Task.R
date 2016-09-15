@@ -25,6 +25,7 @@
 #' columns in \code{data}. The name of the column specifies the name of the label. \code{target}
 #' is then a char vector that points to these columns.
 #'
+#' @param type Type of the Task.
 #' @param id [\code{character(1)}]\cr
 #'   Id string for object.
 #'   Default is the name of the R variable passed to \code{data}.

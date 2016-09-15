@@ -27,6 +27,7 @@ trainLearner.classif.knn = function(.learner, .task, .subset, .weights = NULL,  
 predictLearner.classif.knn = function(.learner, .model, .newdata, ...) {
   args = .model$learner.model
   args$test = .newdata
+  browser()
   do.call(class::knn, args)
 }
 

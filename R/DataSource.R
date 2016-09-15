@@ -4,8 +4,8 @@
 #'   Source of the data. Currently supported
 #'   \itemize{
 #'     \item[\code{\link[base]{data.frame}}]{Regular data.frames.}
-#'     \item[\code{\link[dplyr]{tbl}}]{Tables as used in \pkg{dplyr}. Can use a SQL backend.}
-#'   }
+#'     \item[\code{\link[dplyr]{tbl}}]{Tables as used in \pkg{dplyr}. Can use a
+#'     SQL backend.} .. }
 #' @param rows [\code{integer} | \code{NULL}]\cr
 #'   Subset of rows to use in the task. Additional rows are ignored.
 #' @param cols [\code{character} | \code{NULL}]\cr
@@ -33,7 +33,6 @@ makeDataSource.data.frame = function(src, rows = NULL, cols = NULL, ...) {
 
 #' @export
 makeDataSource.tbl = function(src, rows = NULL, cols = NULL, key = NA_character_, ...) {
-  requireNamespace("dplyr")
   assertCharacter(cols, any.missing = FALSE, null.ok = TRUE)
   assertString(key)
 
@@ -55,7 +54,7 @@ makeDataSource.tbl = function(src, rows = NULL, cols = NULL, key = NA_character_
 #'   Names of features to retrieve.
 #' @return [\code{data.frame}].
 #' @export
-getData = function(src, rows = NULL, cols = NULL) {
+getData = function(data, rows = NULL, cols = NULL) {
   UseMethod("getData")
 }
 
@@ -74,8 +73,6 @@ getData.DataSourceDataFrame = function(data, rows = NULL, cols = NULL) {
 
 #' @export
 getData.DataSourceTbl = function(data, rows = NULL, cols = NULL) {
-  requireNamespace("dplyr")
-  requireNamespace("lazyeval")
   rows = .intersect(data$rows, rows)
   cols = .intersect(data$cols, cols)
   res = if (is.null(rows)) data$data else dplyr::filter_(data$data, lazyeval::interp("key %in% ids", key = as.name(data$key), ids = rows))

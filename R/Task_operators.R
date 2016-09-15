@@ -257,11 +257,7 @@ getTaskTargets.CostSensTask = function(task, recode.target = "no") {
 getTaskData = function(task, subset = NULL, features = NULL, target.extra = FALSE, recode.target = "no") {
   checkTask(task, "Task")
   assertInteger(subset, null.ok = TRUE)
-<<<<<<< HEAD
   task.features = c(getTaskFeatureNames(task), getTaskTargetNames(task))
-=======
-  task.features = getTaskFeatureNames(task)
->>>>>>> bf5f56624aca40be6bc2e7922a8ec5da65cd461b
   if (!is.null(features)) {
     assertCharacter(features, any.missing = FALSE)
     assertSubset(features, task.features)

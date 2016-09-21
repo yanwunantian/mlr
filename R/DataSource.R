@@ -1,4 +1,7 @@
-#' @title Create a Data Source backend for mlr Tasks.
+#' Create a Data Source backend for mlr Tasks.
+#'
+#' Creates a \code{\link{DataSource}} which will be stored in an task element
+#' and the data will be retrieved via \code{\link{getData}}.
 #'
 #' @param src [\code{\link[base]{data.frame}} | \code{\link[dplyr]{tbl}}]\cr
 #'   Source of the data. Currently supported
@@ -10,10 +13,10 @@
 #'   Subset of rows to use in the task. Additional rows are ignored.
 #' @param cols [\code{character} | \code{NULL}]\cr
 #'   Subset of columns to use in the task. Additional columns in \code{src} are ignored.
-#' @param key [\code{character}]\cr
-#'   Required for database backends: Name of the primary key column.
 #' @param ... [\code{any}]\cr
 #'   Additional arguments, depending on the type of \code{src}.
+#'   key [\code{character}]\cr Required for database backends: Name of the primary
+#'   key column.
 #' @return [\code{DataSource}].
 #' @aliases DataSource
 #' @export
@@ -44,7 +47,10 @@ makeDataSource.tbl = function(src, rows = NULL, cols = NULL, key = NA_character_
   )
 }
 
-#' @title Retrive data from a DataSource.
+#' Retrive data from a DataSource.
+#'
+#'\code{\link{getData}} takes a \code{\link{DataSource}} and retrieves the data
+#'in a data.frame.
 #'
 #' @param data [\code{\link{DataSource}}]\cr
 #'    \code{\link{DataSource}}.
@@ -81,7 +87,13 @@ getData.DataSourceTbl = function(data, rows = NULL, cols = NULL) {
 }
 
 .intersect = function(x, y) {
-    if (is.null(x)) return(y)
-    if (is.null(y)) return(x)
-    intersect(x, y)
+  if (is.null(x)) return(y)
+  if (is.null(y)) return(x)
+  z = intersect(x, y)
+  # intersection subset: only possible if x contains all indices in y
+  if (length(z) == length(y)) return(z)
+  # ordinary subset: only possible if maximum indice in y is smaller equal then length of x
+  if (max(y) <= length(x)) return(x[y])
+  #if nothing works send error
+  stop("subset was bigger then data")
 }

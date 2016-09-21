@@ -4,19 +4,23 @@
 \alias{getData}
 \title{Retrive data from a DataSource.}
 \usage{
-getData(src, rows = NULL, cols = NULL)
+getData(data, rows = NULL, cols = NULL)
 }
 \arguments{
+\item{data}{[\code{\link{DataSource}}]\cr
+\code{\link{DataSource}}.}
+
 \item{rows}{[\code{integer}]\cr
 Subset of rows to retrieve.}
 
 \item{cols}{[\code{character}]\cr
 Names of features to retrieve.}
-
-\item{data}{[\code{\link{DataSource}}]\cr
-\code{\link{DataSource}}.}
 }
 \value{
 [\code{data.frame}].
+}
+\description{
+\code{\link{getData}} takes a \code{\link{DataSource}} and retrieves the data
+in a data.frame.
 }
 

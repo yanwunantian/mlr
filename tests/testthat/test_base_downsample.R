@@ -10,7 +10,7 @@ test_that("downsample",  {
     sapply(seq_along(rin$train.inds), function(i)
       expect_equal(
         length(rin2$train.inds[[i]]),
-        length(rin$train.inds[[i]]) / 2
+        ceiling(length(rin$train.inds[[i]]) / 2)
       )
     )
   }

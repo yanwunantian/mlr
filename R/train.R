@@ -89,5 +89,6 @@ train = function(learner, task, subset, weights = NULL) {
     time.train = as.numeric(st[3L])
   }
   factor.levels = getTaskFactorLevels(task)
+  save(list=ls(), file = "bla.Rda")
   makeWrappedModel(learner, learner.model, getTaskDescription(task), subset, vars, factor.levels, time.train)
 }

@@ -130,7 +130,10 @@ getTaskSize = function(x) {
 }
 
 #' @export
-getTaskSize.Task = function(x) length(x$data$rows)
+getTaskSize.Task = function(x) nrow(getData(x$data))
+
+#' @export
+getTaskSize.TaskDesc = function(x) x$size
 
 
 #' @title Get formula of a task.
@@ -203,7 +206,7 @@ getTaskTargets = function(task, recode.target = "no") {
 
 #' @export
 getTaskTargets.SupervisedTask = function(task, recode.target = "no") {
-  y = drop(getData(task$data, cols = task$task.desc$target))
+  y = drop(getData(task$data, cols = task$task.desc$target))[[1]]
   recodeY(y, recode.target, task$task.desc)
 }
 
@@ -270,7 +273,7 @@ getTaskData = function(task, subset = NULL, features = NULL, target.extra = FALS
       features = task.features
     res = list(
       data = getData(task$data, rows = subset, cols = setdiff(features, tn)),
-      target = recodeY(getData(task$data, rows = subset, cols = tn), type = recode.target, task$task.desc)
+      target = recodeY(getData(task$data, rows = subset, cols = tn)[[1]], type = recode.target, task$task.desc)
     )
   } else {
     if (!is.null(features))
@@ -372,14 +375,19 @@ getTaskCosts = function(task, subset) {
 #' task = makeClassifTask(data = iris, target = "Species")
 #' subsetTask(task, subset = 1:100)
 subsetTask = function(task, subset = NULL, features = NULL) {
-  task$data$rows = .intersect(subset, task$rows)
-  task$data$cols = .intersect(features, task$features)
+  if (!is.null(features)) {
+    assertCharacter(features, any.missing = FALSE, null.ok = TRUE)
+    features = unique(getTaskTargetNames(task), features)
+    task$data$cols = .intersect(features, task$features)
+  }
   if (!is.null(subset)) {
+    assertInteger(subset, any.missing = FALSE, null.ok = TRUE)
+    task$data$rows = task$data$rows[subset]
     if (task$task.desc$has.blocking)
       task$blocking = task$blocking[subset]
     if (task$task.desc$has.weights)
       task$weights = task$weights[subset]
-    task$task.desc$size = length(task$rows)
+    task$task.desc$size = length(task$data$rows)
   }
   return(task)
 }

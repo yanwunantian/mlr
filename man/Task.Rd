@@ -91,6 +91,8 @@ Censoring type. Allowed choices are \dQuote{rcens} for right censored data (defa
 \dQuote{lcens} for left censored and \dQuote{icens} for interval censored data using
 the \dQuote{interval2} format.
 See \code{\link[survival]{Surv}} for details.}
+
+\item{type}{Type of the Task.}
 }
 \value{
 [\code{\link{Task}}].

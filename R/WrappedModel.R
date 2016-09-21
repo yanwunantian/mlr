@@ -127,7 +127,3 @@ getFailureModelMsg = function(model) {
 getFailureModelMsg.WrappedModel = function(model) {
   return(NA_character_)
 }
-
-
-
-

@@ -9,11 +9,11 @@ makeDataSource(src, rows = NULL, cols = NULL, ...)
 }
 \arguments{
 \item{src}{[\code{\link[base]{data.frame}} | \code{\link[dplyr]{tbl}}]\cr
-  Source of the data. Currently supported
-  \itemize{
-    \item[\code{\link[base]{data.frame}}]{Regular data.frames.}
-    \item[\code{\link[dplyr]{tbl}}]{Tables as used in \pkg{dplyr}. Can use a SQL backend.}
-  }}
+Source of the data. Currently supported
+\itemize{
+  \item[\code{\link[base]{data.frame}}]{Regular data.frames.}
+  \item[\code{\link[dplyr]{tbl}}]{Tables as used in \pkg{dplyr}. Can use a
+  SQL backend.} .. }}
 
 \item{rows}{[\code{integer} | \code{NULL}]\cr
 Subset of rows to use in the task. Additional rows are ignored.}
@@ -22,12 +22,15 @@ Subset of rows to use in the task. Additional rows are ignored.}
 Subset of columns to use in the task. Additional columns in \code{src} are ignored.}
 
 \item{...}{[\code{any}]\cr
-Additional arguments, depending on the type of \code{src}.}
-
-\item{key}{[\code{character}]\cr
-Required for database backends: Name of the primary key column.}
+Additional arguments, depending on the type of \code{src}.
+key [\code{character}]\cr Required for database backends: Name of the primary
+key column.}
 }
 \value{
 [\code{DataSource}].
+}
+\description{
+Creates a \code{\link{DataSource}} which will be stored in an task element
+and the data will be retrieved via \code{\link{getData}}.
 }
 

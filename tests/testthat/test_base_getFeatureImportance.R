@@ -28,7 +28,7 @@ test_that("getFeatureImportance", {
     any.missing = FALSE, nrows = 1, ncols = getTaskNFeats(regr.task))
   expect_equal(colnames(feat.imp), mod$features)
   
-  #For learners without the possibility to calculate feature importance a meaningfull error should
+  #For learners without the possibility to calculate feature importance a meaningful error should
   #be returned
   lrn = makeLearner("classif.qda")
   mod = train(lrn, binaryclass.task)

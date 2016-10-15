@@ -31,7 +31,8 @@ trainLearner.surv.gbm = function(.learner, .task, .subset, .weights = NULL,  ...
   if (is.null(.weights)) {
     gbm::gbm(f, data = d, distribution = "coxph", ...)
   } else  {
-    gbm::gbm(f, data = d, weights = .weights, distribution = "coxph", ...)
+    # gbm throws an error if integer weights are passed
+    gbm::gbm(f, data = d, weights = as.numeric(.weights), distribution = "coxph", ...)
   }
 }
 
@@ -39,11 +40,11 @@ trainLearner.surv.gbm = function(.learner, .task, .subset, .weights = NULL,  ...
 predictLearner.surv.gbm = function(.learner, .model, .newdata, ...) {
   td = .model$task.desc
   m = .model$learner.model
-  gbm::predict.gbm(m, newdata = .newdata, type = "response", n.trees = m$n.trees, single.tree = FALSE, ...)
+  predict(m, newdata = .newdata, type = "response", n.trees = m$params$num_trees, single.tree = FALSE, ...)
 }
 
 #' @export
 getFeatureImportanceLearner.surv.gbm = function(.learner, .model, ...) {
   mod = getLearnerModel(.model)
-  gbm::relative.influence(mod, mod$n.trees, ...)
+  gbm::relative_influence(mod, mod$params$num_trees, ...)
 }

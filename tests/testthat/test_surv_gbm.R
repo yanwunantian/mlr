@@ -21,7 +21,7 @@ test_that("surv_gbm", {
       m <- do.call(gbm::gbm, pars)
     )
     set.seed(getOption("mlr.debug.seed"))
-    p = gbm::predict.gbm(m, newdata = surv.test, n.trees = m$n.trees)
+    p = predict(m, newdata = surv.test, n.trees = m$params$num_trees)
     old.predicts.list[[i]] = p
   }
 

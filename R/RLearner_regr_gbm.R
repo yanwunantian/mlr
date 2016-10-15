@@ -32,17 +32,18 @@ trainLearner.regr.gbm = function(.learner, .task, .subset, .weights = NULL,  ...
     gbm::gbm(f, data = getTaskData(.task, .subset), ...)
   } else  {
     f = getTaskFormula(.task)
-    gbm::gbm(f, data = getTaskData(.task, .subset), weights = .weights, ...)
+    # gbm throws an error if integer weights are passed
+    gbm::gbm(f, data = getTaskData(.task, .subset), weights = as.numeric(.weights), ...)
   }
 }
 
 #' @export
 predictLearner.regr.gbm = function(.learner, .model, .newdata, ...) {
   m = .model$learner.model
-  gbm::predict.gbm(m, newdata = .newdata, n.trees = length(m$trees), ...)
+  predict(m, newdata = .newdata, n.trees = m$params$num_trees, ...)
 }
 
 #' @export
 getFeatureImportanceLearner.regr.gbm = function(.learner, .model, ...) {
   getFeatureImportanceLearner.classif.gbm(.learner, .model, ...)
-  }
+}

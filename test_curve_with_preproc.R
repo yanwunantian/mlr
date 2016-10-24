@@ -9,23 +9,40 @@ task = makeTimeSeriesClassifTask(data = gp, target = "X1", positive = "1")
 
 lrn = makeLearner("classif.rpart")
 
-ptrain = function(data, target, args) {
-  feats = setdiff(colnames(data), target)
-  feats = sample(feats, 2)
-  # print(feats)
-  data = data[, c(feats, target)]
-  control = list(feats = feats)
-  list(data = data, control = control)
-}
+# ptrain = function(data, target, args) {
+#   feats = setdiff(colnames(data), target)
+#   feats = sample(feats, 2)
+#   # print(feats)
+#   data = data[, c(feats, target)]
+#   control = list(feats = feats)
+#   list(data = data, control = control)
+# }
+#
+# ppredict = function(data, target, args, control) {
+#   data = data[, control$feats]
+#   return(data)
+# }
+#
+# lrn2 = makePreprocWrapper(lrn, train = ptrain, predict = ppredict)
+#
+# # m = train(lrn2, task)
+# # p = predict(m, task)
+# r = crossval(lrn2, task)
 
-ppredict = function(data, target, args, control) {
-  data = data[, control$feats]
-  return(data)
-}
+############################
 
-lrn2 = makePreprocWrapper(lrn, train = ptrain, predict = ppredict)
+# extract time series features
+gpf <- getTSfeaturesData(task = task, method ="Wavelets")
+task2 <- makeTimeSeriesClassifTask(data = gpf, target = "X1", positive = "1")
 
-# m = train(lrn2, task)
-# p = predict(m, task)
-r = crossval(lrn2, task)
+# wavelet features
+model = train(lrn, task2, subset = 1:50)
+pred = predict(model, task2, subset = 51:200)
+p = performance(pred, measures = list(mmce, tpr))
+print(p)
 
+# time series as non-temporal data
+model = train(lrn, task, subset = 1:50)
+pred = predict(model, task, subset = 51:200)
+p = performance(pred, measures = list(mmce, tpr))
+print(p)

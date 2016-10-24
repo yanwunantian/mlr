@@ -22,7 +22,7 @@ makeRLearner.classif.xgboost = function() {
       makeUntypedLearnerParam(id = "objective", default = "binary:logistic", tunable = FALSE),
       makeUntypedLearnerParam(id = "eval_metric", default = "error", tunable = FALSE),
       makeNumericLearnerParam(id = "base_score", default = 0.5, tunable = FALSE),
-      
+
       makeNumericLearnerParam(id = "missing", default = NULL, tunable = FALSE, when = "both",
         special.vals = list(NA, NA_real_, NULL)),
       makeIntegerLearnerParam(id = "nthread", lower = 1L, tunable = FALSE),
@@ -46,23 +46,33 @@ makeRLearner.classif.xgboost = function() {
 #' @export
 trainLearner.classif.xgboost = function(.learner, .task, .subset, .weights = NULL,  ...) {
   td = getTaskDescription(.task)
+  num_class = length(td$class.levels)
   data = getTaskData(.task, .subset, target.extra = TRUE)
   target = data$target
   target = match(as.character(target), td$class.levels) - 1
   data = data.matrix(data$data)
 
-  if (length(td$class.levels) == 2L) {
+  if (num_class == 2L) {
     parlist = list(...)
     obj = parlist$objective
     if (is.null(obj)) {
       obj = "binary:logistic"
     }
 
-    if (is.null(.weights)) {
-      xgboost::xgboost(data = data, label = target, objective = obj, ...)
+    if (obj == "multi:softprob") {
+      if (is.null(.weights)) {
+        xgboost::xgboost(data = data, label = target, objective = obj, num_class = num_class, ...)
+      } else {
+        xgb.dmat = xgboost::xgb.DMatrix(data = data, label = target, weight = .weights)
+        xgboost::xgboost(data = xgb.dmat, label = NULL, objective = obj, num_class = num_class, ...)
+      }
     } else {
-      xgb.dmat = xgboost::xgb.DMatrix(data = data, label = target, weight = .weights)
-      xgboost::xgboost(data = xgb.dmat, label = NULL, objective = obj, ...)
+      if (is.null(.weights)) {
+        xgboost::xgboost(data = data, label = target, objective = obj, ...)
+      } else {
+        xgb.dmat = xgboost::xgb.DMatrix(data = data, label = target, weight = .weights)
+        xgboost::xgboost(data = xgb.dmat, label = NULL, objective = obj, ...)
+      }
     }
   } else {
     parlist = list(...)
@@ -70,7 +80,6 @@ trainLearner.classif.xgboost = function(.learner, .task, .subset, .weights = NUL
     if (is.null(obj)) {
       obj = "multi:softprob"
     }
-    num_class = length(td$class.levels)
 
     if (is.null(.weights)) {
       xgboost::xgboost(data = data, label = target, objective = obj, num_class = num_class, ...)
@@ -84,6 +93,7 @@ trainLearner.classif.xgboost = function(.learner, .task, .subset, .weights = NUL
 #' @export
 predictLearner.classif.xgboost = function(.learner, .model, .newdata, ...) {
   td = .model$task.desc
+  num_class = length(td$class.levels)
   m = .model$learner.model
   p = xgboost::predict(m, newdata = data.matrix(.newdata), ...)
   nc = length(td$class.levels)

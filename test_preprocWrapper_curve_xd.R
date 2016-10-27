@@ -1,4 +1,5 @@
 load_all()
+library('BBmisc')
 library('wavelets')
 set.seed(2)
 
@@ -24,11 +25,12 @@ generateWaveletData = function(curves, target) {
 
 ptrain = function(data, target, args) {
     control = list(fun=generateWaveletData)
-    list(data = generateWaveletData(data), control = control)
+    list(data = generateWaveletData(data, target), control = control)
+    #Preprocessing train must result in list wil elements data[data.frame] and control[list]!
  }
 
 ppredict = function(data, target, args, control) {
-   data = control$fun(data)
+   data = control$fun(data, target)
    return(data)
  }
 

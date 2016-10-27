@@ -27,11 +27,11 @@ makeRLearner.regr.km = function() {
       makeUntypedLearnerParam(id = "knots"),
       makeLogicalLearnerParam(id = "jitter", default = FALSE, when = "predict"),
       makeNumericLearnerParam(id = "nugget.stability", requires = quote(!nugget.estim && is.null(nugget))),
-      makeLogicalLearnerParam(id = "scale.data", default = TRUE)
+      makeLogicalLearnerParam(id = "scale.data", default = FALSE)
     ),
-    par.vals = list(jitter = FALSE, scale.data = TRUE),
+    par.vals = list(jitter = FALSE, scale.data = FALSE),
     # FIXME jitter not found as parameter for km() or km.predict(). par.vals and LearnerParam are the same here.
-    properties = c("numerics", "se"),
+    properties = c("numerics", "factors", "se"),
     name = "Kriging",
     short.name = "km",
     note = 'In predict, we currently always use `type = "SK"`. The extra parameter `jitter` (default is `FALSE`) enables adding a very small jitter (order 1e-12) to the x-values before prediction, as `predict.km` reproduces the exact y-values of the training data points, when you pass them in, even if the nugget effect is turned on. \n We further introduced `nugget.stability` which sets the `nugget` to `nugget.stability * var(y)` before each training to improve numerical stability. We recommend a setting of 10^-8. We also added a option to scale the input data to [0,1] which can improve the stability and runtime of the algorithm.'
@@ -43,12 +43,14 @@ trainLearner.regr.km = function(.learner, .task, .subset, .weights = NULL, scale
   d = getTaskData(.task, .subset, target.extra = TRUE)
   args = list(...)
   
+  d$data = createDummyFeatures(d$data)
+  
   low = apply(d$data, 2, min)
   high = apply(d$data, 2, max)
   not.const = colnames(d$data)[high != low]
   
   if (scale.data) {
-    d$data[,not.const] = apply(d$data[,not.const], 2, function(x) x = (x - min(x)) / (max(x) - min(x)))
+    d$data[,not.const] = apply(d$data[,not.const, drop = FALSE], 2, function(x) x = (x - min(x)) / (max(x) - min(x)))
     mlist = list(scaled = TRUE, not.const = not.const, high = high, low = low)
   } else {
     mlist = list(scaled = FALSE, not.const = not.const)
@@ -71,11 +73,13 @@ trainLearner.regr.km = function(.learner, .task, .subset, .weights = NULL, scale
 #' @export
 predictLearner.regr.km = function(.learner, .model, .newdata, jitter, ...) {
   
+  .newdata = createDummyFeatures(.newdata)
+  
   #scale newdata to if training data was scaled as well
   tr.info = getTrainingInfo(.model)
   if (tr.info$scaled) {
     for (col.name in tr.info$not.const) {
-      .newdata[, col.name] =  (.newdata[, col.name] - tr.info$low[col.name]) / (tr.info$high[col.name] - tr.info$low[col.name])
+      .newdata[, col.name] =  (.newdata[, col.name, drop = FALSE] - tr.info$low[col.name]) / (tr.info$high[col.name] - tr.info$low[col.name])
     }
   }
   

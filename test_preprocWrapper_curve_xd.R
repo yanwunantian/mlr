@@ -30,6 +30,20 @@ createDWTFeature = function(curves) {
   return(wtdata)
 }
 
+library('dtw')
+
+creatDTWFeature = function (curves, ref = c(1,2) ){
+  wtdata = NULL
+  for (i in seq_row(curves)) {
+    a = t(curves[i,])
+    wt = lapply(ref, function(r) dtw(a,curves[r,], step.pattern = asymmetric, keep =TRUE)$distance)
+    #wt = lapply(ref, function(r) curves[r,])
+    wtdata = rbind(wtdata, wt)
+  }
+  wtdata = as.data.frame(wtdata)
+  return(wtdata)
+}
+
 
 gp = load2("gunpoint.RData")
 gp.x = gp[,-1]

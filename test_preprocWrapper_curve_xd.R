@@ -1,17 +1,25 @@
+set.seed(2)
 load_all()
+configureMlr(show.info = TRUE, show.learner.output= TRUE)
 library('BBmisc')
 library('wavelets')
-set.seed(2)
 
-configureMlr(show.info = TRUE, show.learner.output= TRUE)
-gp = load2("gunpoint.RData")
 
-task = makeTimeSeriesClassifTask(data = gp, target = "X1", positive = "1")
+createFIRFeatures = function(df_Ts, target, boundary = "periodic", psf = c(1/sqrt(2),1/sqrt(2))) {
+  df_Ts = df_Ts[, setdiff(colnames(df_Ts), target)]
+  kl = length(psf)
+  wtdata = NULL
+  
+  for (i in seq_row(df_Ts)) {
+    
+  }
+  wtdata = as.data.frame(wtdata)
+  return(wtdata)
+  
+}
 
-lrn = makeLearner("classif.rpart")
 
-generateWaveletData = function(curves, target) {
-  curves = curves[,setdiff(colnames(curves),target)]
+createDWTFeature = function(curves) {
   wtdata = NULL
   for (i in seq_row(curves)) {
     a = t(curves[i,])
@@ -23,20 +31,38 @@ generateWaveletData = function(curves, target) {
 }
 
 
+gp = load2("gunpoint.RData")
+gp.x = gp[,-1]
+gp.y = gp[,1]
+gpw.x = createDWTFeature(gp.x)
+gpw = cbind(y = gp.y, gpw.x)
+gpw$y = as.character(gpw$y)
+
+task = makeTimeSeriesClassifTask(data = gpw, target = "y", positive = "1", check.data = FALSE)
+
+lrn = makeLearner("classif.rpart")
+
+
+
 ptrain = function(data, target, args) {
     control = list(fun=generateWaveletData)
-    list(data = generateWaveletData(data, target), control = control)
+    list(data = generateWaveletData(data), control = control)
     #Preprocessing train must result in list wil elements data[data.frame] and control[list]!
  }
 
 ppredict = function(data, target, args, control) {
-   data = control$fun(data, target)
+   y = intersect(target, colnames(data))  
+   data = do.call(control$fun, c(list(curves = data), args))
    return(data)
  }
 
-lrn2 = makePreprocWrapper(lrn, train = ptrain, predict = ppredict)
 
-model = train(lrn2, task, subset = 1:50)
-pred = predict(model, task, subset = 51:200)
+lrn2 = makePreprocWrapper(lrn, train = ptrain, predict = ppredict, par.vals = list(positive ="1"))
+lrn2$id = stri_replace(lrn$id, replacement = ".wavelet", regex = "\\.preproc$")
+lrn2 = addClasses(lrn2, "WaveletFeaturesWrapper")
+
+
+model = train(lrn2, task, subset = 1:150) # error: "Assertion on 'positive' failed: Must be element of set {''}" # assertChoice(positive, choices = levs) at ClassifTask.R#43
+pred = predict(model, task, subset = 151:200)
 p = performance(pred, measures = list(mmce, tpr))
 print(p)

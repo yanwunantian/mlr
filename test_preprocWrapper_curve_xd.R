@@ -36,17 +36,16 @@ gp.x = gp[,-1]
 gp.y = gp[,1]
 gpw.x = createDWTFeature(gp.x)
 gpw = cbind(y = gp.y, gpw.x)
-gpw$y = as.character(gpw$y)
+gpw$y = as.factor(gpw$y)
 
 task = makeTimeSeriesClassifTask(data = gpw, target = "y", positive = "1", check.data = FALSE)
 
 lrn = makeLearner("classif.rpart")
 
 
-
 ptrain = function(data, target, args) {
-    control = list(fun=generateWaveletData)
-    list(data = generateWaveletData(data), control = control)
+    control = list(fun=createDWTFeature)
+    list(data = createDWTFeature(data), control = control)
     #Preprocessing train must result in list wil elements data[data.frame] and control[list]!
  }
 
@@ -56,7 +55,7 @@ ppredict = function(data, target, args, control) {
    return(data)
  }
 
-
+library('stringi')
 lrn2 = makePreprocWrapper(lrn, train = ptrain, predict = ppredict, par.vals = list(positive ="1"))
 lrn2$id = stri_replace(lrn$id, replacement = ".wavelet", regex = "\\.preproc$")
 lrn2 = addClasses(lrn2, "WaveletFeaturesWrapper")

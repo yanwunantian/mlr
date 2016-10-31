@@ -69,7 +69,8 @@
 resample = function(learner, task, resampling, measures, weights = NULL, models = FALSE,
   extract, keep.pred = TRUE, ..., show.info = getMlrOption("show.info")) {
 
-  learner = checkLearner(learner, ...)
+  learner = checkLearner(learner)
+  learner = setHyperPars(learner, ...)
   assertClass(task, classes = "Task")
   n = getTaskSize(task)
   # instantiate resampling
@@ -92,6 +93,7 @@ resample = function(learner, task, resampling, measures, weights = NULL, models 
     stop(stri_paste("Size of data set:", n, "and resampling instance:", r, "differ!", sep = " "))
 
   checkLearnerBeforeTrain(task, learner, weights)
+  checkAggrsBeforeResample(measures, resampling$desc)
 
   rin = resampling
   more.args = list(learner = learner, task = task, rin = rin, weights = NULL,
@@ -201,6 +203,7 @@ mergeResampleResult = function(learner, task, iter.results, measures, rin, model
   list(
     learner.id = learner$id,
     task.id = getTaskId(task),
+    task.desc = getTaskDescription(task),
     measures.train = ms.train,
     measures.test = ms.test,
     aggr = aggr,

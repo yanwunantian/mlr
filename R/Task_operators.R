@@ -254,25 +254,25 @@ getTaskData = function(task, subset, features, target.extra = FALSE, recode.targ
   checkTask(task, "Task")
 
   if (missing(subset)) {
-    subset = NULL 
+    subset = NULL
   } else {
     assert(checkIntegerish(subset), checkLogical(subset))
     if (is.logical(subset))
       subset = which(subset)
-    if (is.numeric(subset))
+    if (is.numeric(subset) && !is.integer(subset))
       subset = asInteger(subset)
   }
 
   assertLogical(target.extra)
 
   task.features = getTaskFeatureNames(task)
-  
+
   # if supplied check if the input is right and always convert 'features'
   # to character vec
   if (!missing(features)) {
     assert(checkIntegerish(features, lower = 1L, upper = length(task.features)),
       checkLogical(features), checkCharacter(features))
-    if (is.numeric(features))
+    if (is.numeric(features) && !is.integer(features))
       features = asInteger(features)
     if (!is.character(features))
       features = task.features[features]
@@ -403,7 +403,6 @@ getTaskCosts = function(task, subset) {
 subsetTask = function(task, subset, features) {
   # FIXME: we recompute the taskdesc for each subsetting. do we want that? speed?
   # FIXME: maybe we want this independent of changeData?
-  td = task$desc
   task = changeData(task, getTaskData(task, subset, features), getTaskCosts(task, subset), task$weights)
   if (!missing(subset)) {
     if (task$task.desc$has.blocking)

@@ -4,7 +4,7 @@
 #' @description Extracts time series features based on fourier analysis.
 #'
 #' @export
-TSfeatures.Fourier = function(curves) {
+getTSFourierFeatures = function(curves) {
   requirePackages("stats", default.method = "load")
 
   fftdata = fft(as.matrix(curves))

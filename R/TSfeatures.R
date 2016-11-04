@@ -13,7 +13,7 @@
 #'   series features. Two methods available. Wavelet transformation:
 #'   \dQuote{wavelets} Fourier transformation: \dQuote{fourier}
 #' @param pars  \cr Further parameters passed as argument e.g., for feature
-#'   representation methods.
+#'   representation methods. For wavelets, \code{filter} and \code{boundary}. For fourier,\code{fft.coeff}.
 #' @return [\code{ClassifTask}].
 #' @export
 makeTSFeaturesClassifTask = function(task, method, pars = NULL) {
@@ -24,11 +24,14 @@ makeTSFeaturesClassifTask = function(task, method, pars = NULL) {
   #check valid feature method
   if ( !(method %in%  c("wavelets", "fourier")) )
     stop("Method for feature extraction must be one of 'wavelets' or 'fourier'. Please check method.")
+  #check for valid pars
+  if ( !(all(names(pars) %in% c("filter", "boundary", "fft.coeff"))) )
+    stop("Pars includes non valid arguments. Must be filter or boundary or fft.coeff .")
 
   z = getTaskData(task, target.extra = TRUE)
   switch(method,
-         wavelets = {tsf = getTSWaveletFeatures(curves = z$data, pars = pars)},
-         fourier = {tsf = getTSFourierFeatures(curves = z$data)}
+         wavelets = {tsf = getTSWaveletFeatures(curves = z$data, filter = pars$filter, boundary = pars$boundary)},
+         fourier = {tsf = getTSFourierFeatures(curves = z$data, fft.coeff = pars$fft.coeff)}
          )
   tsf = cbind(as.factor(z$target), tsf)
   # rename target column

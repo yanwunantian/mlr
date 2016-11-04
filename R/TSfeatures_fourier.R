@@ -4,7 +4,10 @@
 #'   discrete fourier transform.
 #'
 #' @param curves \code{data.frame},\code{matrix}]\cr Time series curve data.
-#' @param fft.coeff \code{character}\cr Ooptinal. Which 'transformation' of the complex frequency domain representation should be calculated as feature representation. Must be one of \dQuote{amplitude} or \dQuote{Phase}. Default: \dQuote{amplitude}.
+#' @param fft.coeff \code{character}\cr Optional. Which 'transformation' of the
+#'   complex frequency domain representation should be calculated as feature
+#'   representation. Must be one of \dQuote{amplitude} or \dQuote{Phase}.
+#'   Default: \dQuote{amplitude}.
 #' @return Returns an \code{data.frame} object containing the fourier
 #'   coefficients.
 #'

@@ -13,7 +13,8 @@
 #'   series features. Two methods available. Wavelet transformation:
 #'   \dQuote{wavelets} Fourier transformation: \dQuote{fourier}
 #' @param pars  \cr Further parameters passed as argument e.g., for feature
-#'   representation methods. For wavelets, \code{filter} and \code{boundary}. For fourier,\code{fft.coeff}.
+#'   representation methods. For wavelets, \code{filter} and \code{boundary}.
+#'   For fourier,\code{fft.coeff}.
 #' @return [\code{ClassifTask}].
 #' @export
 makeTSFeaturesClassifTask = function(task, method, pars = NULL) {

@@ -4,9 +4,9 @@
 #'   for the raw time series curve data.
 #'
 #' @param curves [\code{data.frame},\code{matrix}]\cr Time series curve data.
-#' @param filter, periodic \cr Optional. Which filter should be used. Default: \code{filter} = \dQuote{la8},
-#'   \code{boundary} = \dQuote{periodic}. See package \code{wavelets} for more
-#'   information.
+#' @param filter, periodic \cr Optional. Which filter should be used. Default:
+#'   \code{filter} = \dQuote{la8}, \code{boundary} = \dQuote{periodic}. See
+#'   package \code{wavelets} for more information.
 #' @return Returns an \code{data.frame} object containing the wavelet
 #'   coefficients.
 #'

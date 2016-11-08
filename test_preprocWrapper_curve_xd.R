@@ -59,7 +59,9 @@ lrn = makeLearner("classif.rpart")
 
 ptrain = function(data, target, args) {
     control = list(fun=createDWTFeature)
-    list(data = createDWTFeature(data), control = control)
+    d = createDWTFeature(data)
+    xxx <<- d
+    list(data = d, control = control)
     #Preprocessing train must result in list wil elements data[data.frame] and control[list]!
  }
 

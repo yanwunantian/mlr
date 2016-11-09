@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2016-11-07" />
+<meta name="date" content="2016-11-09" />
 
 <title>mlr: Curve Data</title>
 
@@ -116,7 +116,7 @@ $(document).ready(function () {
 
 
 <h1 class="title toc-ignore">mlr: Curve Data</h1>
-<h4 class="date"><em>2016-11-07</em></h4>
+<h4 class="date"><em>2016-11-09</em></h4>
 
 </div>
 
@@ -134,12 +134,12 @@ load_all()</code></pre>
 gp = load2(&quot;gunpoint.RData&quot;)</code></pre>
 <div id="non-temporal" class="section level2">
 <h2>Non temporal</h2>
-<p>First, handling curvature data when ignoring the temporal structure, i.e. the temporal measurements are treated as (independent) covariates.</p>
+<p>First, handling curvature data when ignoring the temporal structure, i.e. the temporal measurements are treated as (independent) covariates. The first step is to create a time series classification task in which the relevant information is stored, i.e. data, target variable, etc .</p>
 <pre class="r"><code>## Define the task:
-taskCl = makeClassifTask(data = gp, target = &quot;X1&quot;, positive = &quot;1&quot;)
+taskCl = makeTimeSeriesClassifTask(data = gp, target = &quot;X1&quot;, positive = &quot;1&quot;)
 print(taskCl)</code></pre>
 <pre><code>## Supervised task: gp
-## Type: classif
+## Type: tsclassif
 ## Target: X1
 ## Observations: 200
 ## Features:
@@ -152,6 +152,7 @@ print(taskCl)</code></pre>
 ##   1   2 
 ## 100 100 
 ## Positive class: 1</code></pre>
+<p>Next, the basic <code>mlr</code> step is to define which learner is used for classification. We choose a CART tree. The last steps are training the model i.e. the learner, predicting and evaluation.</p>
 <pre class="r"><code>## Define the learner:
 lrn = makeLearner(&quot;classif.rpart&quot;)
 print(lrn)</code></pre>
@@ -162,10 +163,10 @@ print(lrn)</code></pre>
 ## Properties: twoclass,multiclass,missings,numerics,factors,ordered,prob,weights,featimp
 ## Predict-Type: response
 ## Hyperparameters: xval=0</code></pre>
-<pre class="r"><code>## Train the model...:
+<pre class="r"><code>## Train the model on the training data of specified task:
 model = train(lrn, taskCl, subset = 1:50)
 
-## ...and predict:
+## ...and predict for the test data:
 pred = predict(model, taskCl, subset = 51:200)
 
 ## Get the mean misclassification error and true positive rate:
@@ -176,18 +177,48 @@ print(p)</code></pre>
 </div>
 <div id="wavelet-transform" class="section level2">
 <h2>Wavelet transform</h2>
-<p>Now we use the <code>curve\_data</code> functions to extract non-temporal features from the temporal data. To begin with, the discrete wavelet feature transformation is used, We can decide on which feature extraction method is used via the <code>method</code> parameter and add additional parameters in the <code>pars</code> argument:</p>
+<p>Now we use the <code>curve_data</code> functions to extract non-temporal features from the temporal data. To begin with, we choose the discrete wavelet feature transformation based on haar wavelets. For this, we first have to create a general time series classification task which is the input for the feature extraction method. We can specify which feature extraction method is used via the <code>method</code> parameter and add additional parameters (i.e. the <code>filter</code> and the <code>boundary</code>) in the <code>pars</code> argument. This functions returns a statndard classification task since the transformed data does not inherit temporal structure anymore:</p>
 <pre class="r"><code>## Define the general temporal task:
 taskTs = makeTimeSeriesClassifTask(data = gp, target = &quot;X1&quot;, positive = &quot;1&quot;)
 
-## Specify the feature extraction method and generate task:
-## Here, we use the Haar filter.
+## Specify the feature extraction method and generate new task.
+## Here, we use the Haar filter:
 taskW = makeTSFeaturesClassifTask(task = taskTs, method = &quot;wavelets&quot;, pars = list(filter =&quot;haar&quot;))
-## Or the Daubechie wavelet with filter length 4.
+print(taskW)</code></pre>
+<pre><code>## Supervised task: tsf
+## Type: classif
+## Target: X1
+## Observations: 200
+## Features:
+## numerics  factors  ordered 
+##      147        0        0 
+## Missings: FALSE
+## Has weights: FALSE
+## Has blocking: FALSE
+## Classes: 2
+##   1   2 
+## 100 100 
+## Positive class: 1</code></pre>
+<p>We also want to evaluate a the Daubechie wavelet with filter length of 4.</p>
+<pre class="r"><code>## Use the Daubechie wavelet with filter length 4.
 taskWD4 = makeTSFeaturesClassifTask(task = taskTs, method = &quot;wavelets&quot;, pars = list(filter =&quot;d4&quot;))
-
-
-## Train the model...:
+print(taskWD4)</code></pre>
+<pre><code>## Supervised task: tsf
+## Type: classif
+## Target: X1
+## Observations: 200
+## Features:
+## numerics  factors  ordered 
+##      147        0        0 
+## Missings: FALSE
+## Has weights: FALSE
+## Has blocking: FALSE
+## Classes: 2
+##   1   2 
+## 100 100 
+## Positive class: 1</code></pre>
+<p>The following steps are equal to the non-temporal evaluation: train, predict and evaluate.</p>
+<pre class="r"><code>## Train the model...:
 model = train(lrn, taskW, subset = 1:50)
 
 ## ...and predict:
@@ -208,31 +239,62 @@ print(p)</code></pre>
 </div>
 <div id="fourier-transform" class="section level2">
 <h2>Fourier transform</h2>
-<p>Now, we use the fourier feature transformation. Either the amplitude or the phase of the complex fourier coefficients can be used for analysis:</p>
+<p>Now, we use the fourier feature transformation. Either the amplitude or the phase of the complex fourier coefficients can be used for analysis and can be specified in the additional <code>fft.coeff</code> argument:</p>
 <pre class="r"><code>## Define the general temporal task:
 taskTs = makeTimeSeriesClassifTask(data = gp, target = &quot;X1&quot;, positive = &quot;1&quot;)
 
-## Specify the feature extraction method and generate task:
-## We use the fourier features and the amplitude.
+## Specify the feature extraction method and generate  new task.
+## We use the fourier features and the amplitude:
 taskFa = makeTSFeaturesClassifTask(task = taskTs, method = &quot;fourier&quot;, pars = list(fft.coeff = &quot;amplitude&quot;))</code></pre>
 <pre><code>## [1] &quot;amplitude&quot;</code></pre>
+<pre class="r"><code>print(taskFa)</code></pre>
+<pre><code>## Supervised task: tsf
+## Type: classif
+## Target: X1
+## Observations: 200
+## Features:
+## numerics  factors  ordered 
+##      150        0        0 
+## Missings: FALSE
+## Has weights: FALSE
+## Has blocking: FALSE
+## Classes: 2
+##   1   2 
+## 100 100 
+## Positive class: 1</code></pre>
 <pre class="r"><code>## ... or we prefer the phase:
 taskFp = makeTSFeaturesClassifTask(task = taskTs, method = &quot;fourier&quot;, pars = list(fft.coeff = &quot;phase&quot;))</code></pre>
 <pre><code>## [1] &quot;phase&quot;</code></pre>
+<pre class="r"><code>print(taskFp)</code></pre>
+<pre><code>## Supervised task: tsf
+## Type: classif
+## Target: X1
+## Observations: 200
+## Features:
+## numerics  factors  ordered 
+##      150        0        0 
+## Missings: FALSE
+## Has weights: FALSE
+## Has blocking: FALSE
+## Classes: 2
+##   1   2 
+## 100 100 
+## Positive class: 1</code></pre>
+<p>The evaluation steps remain the same:</p>
 <pre class="r"><code>## Train and predict. First, the amplitude features:
 model = train(lrn, taskFa, subset = 1:50)
 pred = predict(model, taskFa, subset = 51:200)
 p = performance(pred, measures = list(mmce, tpr))
 print(p)</code></pre>
 <pre><code>##      mmce       tpr 
-## 0.5266667 0.5000000</code></pre>
+## 0.2266667 0.9210526</code></pre>
 <pre class="r"><code>## Train and predict with the phase features:
 model = train(lrn, taskFp, subset = 1:50)
 pred = predict(model, taskFp, subset = 51:200)
 p = performance(pred, measures = list(mmce, tpr))
 print(p)</code></pre>
 <pre><code>##      mmce       tpr 
-## 0.5333333 0.6052632</code></pre>
+## 0.5266667 0.5394737</code></pre>
 </div>
 </div>
 

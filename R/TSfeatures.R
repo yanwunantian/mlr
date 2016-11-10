@@ -19,15 +19,20 @@
 #' @export
 makeTSFeaturesClassifTask = function(task, method, pars = NULL) {
 
+  # check if task
+  assertClass(task, classes = "Task")
+
   #check for Time Series Classif Task
   if ( !any(class(task) == "TimeSeriesClassifTask") )
     stop("Task is not a 'TimeSeriesClassifTask'. Please check task.")
-  #check valid feature method
+  #check valid feature extraction method
   if ( !(method %in%  c("wavelets", "fourier")) )
     stop("Method for feature extraction must be one of 'wavelets' or 'fourier'. Please check method.")
   #check for valid pars
   if ( !(all(names(pars) %in% c("filter", "boundary", "fft.coeff"))) )
-    stop("Pars includes non valid arguments. Must be filter or boundary or fft.coeff .")
+    stop("Pars includes non valid arguments. Must be filter or boundary (wavelets) or fft.coeff (fourier).")
+
+
 
   z = getTaskData(task, target.extra = TRUE)
   switch(method,
@@ -35,8 +40,7 @@ makeTSFeaturesClassifTask = function(task, method, pars = NULL) {
          fourier = {tsf = getTSFourierFeatures(curves = z$data, fft.coeff = pars$fft.coeff)}
          )
   tsf = cbind(as.factor(z$target), tsf)
-  # rename target column
-  colnames(tsf)[1] <- task$task.desc$target
+  colnames(tsf)[1] <- task$task.desc$target  # rename target column
   newtask = makeClassifTask(data = tsf, target = task$task.desc$target, positive = task$task.desc$positive)
   return(newtask)
 

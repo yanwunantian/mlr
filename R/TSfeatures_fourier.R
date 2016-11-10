@@ -15,26 +15,34 @@
 getTSFourierFeatures = function(curves, fft.coeff = NULL) {
   requirePackages("stats", default.method = "load")
 
-  if( is.null(fft.coeff) ) fft.coeff = "amplitude"
+  assert(
+    checkClass(curves, "data.frame"),
+    checkClass(curves, "matrix")
+  )
 
+  if( is.null(fft.coeff) ) fft.coeff = "amplitude"
   if ( !(fft.coeff %in%  c("amplitude", "phase")) )
     stop("Transformation for complex frequency domain must be one of 'amplitude' or 'phase'. Please check method.")
 
+  # if data.frame, transform to matrix so that following code executes correctly
+  if(inherits(curves, "data.frame"))
+    curves = as.matrix(curves)
 
-  fftdata = t(apply(as.matrix(curves),1, fft))
-  fftdata=as.data.frame(fftdata)
+  # calculate fourier coefficients -> complex numbers
+  ffttrafo = t(apply(curves,1, fft))
 
+  # extract amplitude or phase of fourier coefficients
   switch(fft.coeff,
-         amplitude = {ffttrafo = getFourierAmplitude(fourier.comp = fftdata)},
-         phase = {ffttrafo = getFourierPhase(fourier.comp = fftdata)}
+         amplitude = {fftPA = getFourierAmplitude(fourier.comp = ffttrafo)},
+         phase = {fftPA = getFourierPhase(fourier.comp = ffttrafo)}
          )
   print(fft.coeff)
-  
-  if(!inherits(ffttrafo, "matrix"))
-    ffttrafo = as.data.frame(matrix(ffttrafo, nrow = 1)) else
-      ffttrafo = as.data.frame(ffttrafo)
-  
-  return(ffttrafo)
+
+  if(!inherits(fftPA, "matrix"))
+    fftPA = as.data.frame(matrix(fftPA, nrow = 1)) else
+      fftPA = as.data.frame(fftPA)
+
+  return(fftPA)
 }
 
 #' @export

@@ -14,8 +14,17 @@
 getTSWaveletFeatures = function(curves, filter = NULL, boundary = NULL) {
   requirePackages("wavelets", default.method = "load")
 
+  assert(
+    checkClass(curves, "data.frame"),
+    checkClass(curves, "matrix")
+  )
+
   if (is.null(filter)) filter = "la8"
   if (is.null(boundary)) boundary = "periodic"
+
+  # if matrix, transform to data.frame so that following code executes correctly
+  if(inherits(curves, "matrix"))
+    curves = as.data.frame(curves)
 
   wtdata = NULL
   for (i in seq_row(curves)) {

@@ -14,6 +14,7 @@ test_that("Ts_Wavelets", {
   bb = NULL
   for (i in seq_row(raw)) {
     a = t(raw[i,])
+    browser()
     wt = wavelets::dwt(a, filter = "haar", boundary = "periodic")
     bb = rbind(bb, unlist(c(wt@W,wt@V[[wt@level]])))
   }

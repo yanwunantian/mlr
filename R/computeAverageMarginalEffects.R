@@ -4,7 +4,7 @@ computeAverageMarginalEffects = function(model, task, features = getTaskFeatureN
   data = getTaskData(task)
   target = getTaskTargetNames(task)
   res = namedList(features)
-  pdat = generatePartialPredictionData(model, task, features)$data
+  pdat = generatePartialDependenceData(model, task, features)$data
 
   # calculate AMEs for all features
   for (f in features) {
@@ -39,7 +39,7 @@ computeAverageMarginalEffects = function(model, task, features = getTaskFeatureN
   return(res)
 }
 
-# FIXME: WE HAVE TO TELL generatePartialPredictionData the VALS!!!! FROM THE OUTSIDE
+# FIXME: WE HAVE TO TELL generatePartialDependenceData the VALS!!!! FROM THE OUTSIDE
 # OR STUFF COULD CHANGE DUE TO THE BOOTSTRAP!
 computeAverageMarginalEffectsResampled = function(model, task, features = getTaskFeatureNames(task), resampling = NULL) {
   if (is.null(resampling)) {
@@ -80,12 +80,12 @@ computeAverageMarginalEffectsResampled = function(model, task, features = getTas
     setResamplingAggr("effects")
     res[[f]] = r
   }
-  res = addClasses(res, "AverageMarginalEffects")
+  res = addClasses(res, "AverageMarginalEffectsResampled")
   return(res)
 }
 
 
-print.AverageMarginalEffects = function(x, ...) {
+print.AverageMarginalEffectsResampled = function(x, ...) {
   feats = names(x)
   d = data.frame()
   for (f in feats) {

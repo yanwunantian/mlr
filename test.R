@@ -30,6 +30,6 @@ set.seed(20160402)
 task = makeRegrTask(id = "bhd", data = Boston, target = "medv")
 lrn = makeLearner("regr.randomForest")
 mod = train(lrn, task)
-pd.ind.regr = generatePartialPredictionData(mod, task, c("age"), individual = TRUE)
-plotPartialPrediction(pd.ind.regr)
+pd.ind.regr = generatePartialDependenceData(mod, task, c("age"), individual = TRUE)
+plotPartialDependence(pd.ind.regr)
 

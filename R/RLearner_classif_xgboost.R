@@ -24,14 +24,14 @@ makeRLearner.classif.xgboost = function() {
       makeNumericLearnerParam(id = "base_score", default = 0.5, tunable = FALSE),
       makeNumericLearnerParam(id = "max_delta_step", lower = 0, default = 0),
       makeNumericLearnerParam(id = "missing", default = NULL, tunable = FALSE, when = "both",
-                              special.vals = list(NA, NA_real_, NULL)),
+        special.vals = list(NA, NA_real_, NULL)),
       makeIntegerLearnerParam(id = "nthread", lower = 1L, tunable = FALSE),
       makeIntegerLearnerParam(id = "nrounds", default = 1L, lower = 1L),
       # FIXME nrounds seems to have no default in xgboost(), if it has 1, par.vals is redundant
       makeUntypedLearnerParam(id = "feval", default = NULL, tunable = FALSE),
       makeIntegerLearnerParam(id = "verbose", default = 1L, lower = 0L, upper = 2L, tunable = FALSE),
       makeIntegerLearnerParam(id = "print_every_n", default = 1L, lower = 1L, tunable = FALSE,
-                              requires = quote(verbose == 1L)),
+        requires = quote(verbose == 1L)),
       makeIntegerLearnerParam(id = "early_stopping_rounds", default = NULL, lower = 1L, special.vals = list(NULL), tunable = FALSE),
       makeLogicalLearnerParam(id = "maximize", default = NULL, special.vals = list(NULL), tunable = FALSE),
       makeDiscreteLearnerParam(id = "sample_type", default = "uniform", values = c("uniform", "weighted"), requires = quote(booster == "dart")),
@@ -49,13 +49,11 @@ makeRLearner.classif.xgboost = function() {
 
 #' @export
 trainLearner.classif.xgboost = function(.learner, .task, .subset, .weights = NULL,  ...) {
-
   td = getTaskDescription(.task)
   parlist = list(...)
   parlist$data = data.matrix(getTaskData(.task, .subset, target.extra = TRUE)$data)
   parlist$label = match(as.character(getTaskData(.task, .subset, target.extra = TRUE)$target), td$class.levels) - 1
   nc = length(td$class.levels)
-
   if (is.null(parlist$objective))
     parlist$objective = ifelse(nc == 2L, "binary:logistic", "multi:softprob")
 
@@ -68,7 +66,6 @@ trainLearner.classif.xgboost = function(.learner, .task, .subset, .weights = NUL
 
   if (!is.null(.weights))
     parlist$data = xgboost::xgb.DMatrix(data = parlist$data, label = parlist$label, weight = .weights)
-
   do.call(xgboost::xgboost, parlist)
 }
 
@@ -79,7 +76,6 @@ predictLearner.classif.xgboost = function(.learner, .model, .newdata, ...) {
   cls = td$class.levels
   nc = length(cls)
   obj = .learner$par.vals$objective
-
   if (is.null(obj))
     .learner$par.vals$objective = ifelse(nc == 2L, "binary:logistic", "multi:softprob")
 
@@ -124,7 +120,7 @@ predictLearner.classif.xgboost = function(.learner, .model, .newdata, ...) {
 getFeatureImportanceLearner.classif.xgboost = function(.learner, .model, ...) {
   mod = getLearnerModel(.model)
   imp = xgboost::xgb.importance(feature_names = .model$features,
-                                model = mod, ...)
+    model = mod, ...)
 
   fiv = imp$Gain
   setNames(fiv, imp$Feature)

@@ -19,7 +19,7 @@ test_that("classif_xgboost", {
   for (i in 1:length(parset.list)) {
     parset = parset.list[[i]]
     pars = list(data = data.matrix(binaryclass.train[,1:60]),
-      label = as.numeric(binaryclass.train[, 61]) - 1)
+                label = as.numeric(binaryclass.train[, 61]) - 1)
     if (is.null(parset$objective)) parset$objective = "binary:logistic"
     if (is.null(parset$verbose)) parset$verbose = 0L
     if (is.null(parset$nround)) parset$nrounds = 1L
@@ -33,7 +33,7 @@ test_that("classif_xgboost", {
   for (i in 1:length(parset.probs.list)) {
     parset = parset.probs.list[[i]]
     pars = list(data = data.matrix(binaryclass.train[,1:60]),
-      label = as.numeric(binaryclass.train[, 61]) - 1)
+                label = as.numeric(binaryclass.train[, 61]) - 1)
     if (is.null(parset$objective)) parset$objective = "binary:logistic"
     if (is.null(parset$verbose)) parset$verbose = 0L
     if (is.null(parset$nround)) parset$nrounds = 1L
@@ -52,10 +52,10 @@ test_that("classif_xgboost", {
   }
 
   testSimpleParsets("classif.xgboost", binaryclass.df, binaryclass.target,
-    binaryclass.train.inds, old.predicts.list, parset.list)
+                    binaryclass.train.inds, old.predicts.list, parset.list)
 
   testProbParsets("classif.xgboost", binaryclass.df, binaryclass.target,
-    binaryclass.train.inds, old.probs.list, parset.probs.list)
+                  binaryclass.train.inds, old.probs.list, parset.probs.list)
 })
 
 test_that("xgboost works with different 'missing' arg vals", {

@@ -24,14 +24,14 @@ makeRLearner.classif.xgboost = function() {
       makeNumericLearnerParam(id = "base_score", default = 0.5, tunable = FALSE),
       makeNumericLearnerParam(id = "max_delta_step", lower = 0, default = 0),
       makeNumericLearnerParam(id = "missing", default = NULL, tunable = FALSE, when = "both",
-        special.vals = list(NA, NA_real_, NULL)),
+                              special.vals = list(NA, NA_real_, NULL)),
       makeIntegerLearnerParam(id = "nthread", lower = 1L, tunable = FALSE),
       makeIntegerLearnerParam(id = "nrounds", default = 1L, lower = 1L),
       # FIXME nrounds seems to have no default in xgboost(), if it has 1, par.vals is redundant
       makeUntypedLearnerParam(id = "feval", default = NULL, tunable = FALSE),
       makeIntegerLearnerParam(id = "verbose", default = 1L, lower = 0L, upper = 2L, tunable = FALSE),
       makeIntegerLearnerParam(id = "print_every_n", default = 1L, lower = 1L, tunable = FALSE,
-        requires = quote(verbose == 1L)),
+                              requires = quote(verbose == 1L)),
       makeIntegerLearnerParam(id = "early_stopping_rounds", default = NULL, lower = 1L, special.vals = list(NULL), tunable = FALSE),
       makeLogicalLearnerParam(id = "maximize", default = NULL, special.vals = list(NULL), tunable = FALSE),
       makeDiscreteLearnerParam(id = "sample_type", default = "uniform", values = c("uniform", "weighted"), requires = quote(booster == "dart")),
@@ -83,16 +83,7 @@ predictLearner.classif.xgboost = function(.learner, .model, .newdata, ...) {
   if (is.null(obj))
     .learner$par.vals$objective = ifelse(nc == 2L, "binary:logistic", "multi:softprob")
 
-  if (nc == 2L) {
-    if (is.null(obj))
-      .learner$par.vals$objective = "binary:logistic"
-  } else {
-    if (is.null(obj))
-      .learner$par.vals$objective = "multi:softprob"
-  }
-
   p = predict(m, newdata = data.matrix(.newdata), ...)
-
 
   if (nc == 2L) { #binaryclass
     if (.learner$par.vals$objective == "multi:softprob") {
@@ -133,7 +124,7 @@ predictLearner.classif.xgboost = function(.learner, .model, .newdata, ...) {
 getFeatureImportanceLearner.classif.xgboost = function(.learner, .model, ...) {
   mod = getLearnerModel(.model)
   imp = xgboost::xgb.importance(feature_names = .model$features,
-    model = mod, ...)
+                                model = mod, ...)
 
   fiv = imp$Gain
   setNames(fiv, imp$Feature)

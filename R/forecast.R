@@ -1,4 +1,3 @@
-
 #' @title  Forecasting generic
 #'
 #' @description Forecasts using a fitted model
@@ -187,18 +186,20 @@ makeForecast = function(.data, .newdata, .proc.vals, .h, .td, .model, ...){
 
     if (pred$predict.type == "response"){
       forecasts[[i]] = pred$data
-      .data[length(.data)] = pred$data$response
+      .data[nrow(.data),] = pred$data$response
     } else if (pred$predict.type == "prob"){
       #FIXME: I don't know regex well enough to do this in one sweep
       colnames(pred$data) = stringr::str_replace(colnames(pred$data),"prob","")
       colnames(pred$data) = stringr::str_replace(colnames(pred$data),"[.]","")
       forecasts[[i]] = pred$data
-      .data[length(.data)] =pred$data$response
+      .data[nrow(.data),] =pred$data$response
     } else if (pred$predict.type == "se"){
       forecasts[[i]] = pred$data
-      .data[length(.data)] = pred$data$response
+      .data[nrow(.data),] = pred$data$response
     }
   }
 
-  do.call(rbind,forecasts)
+  p = do.call(rbind,forecasts)
+  p$truth = NULL
+  p
 }

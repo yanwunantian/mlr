@@ -191,8 +191,9 @@ makeForecast = function(.data, .newdata, .proc.vals, .h, .td, .model, ...){
       #FIXME: I don't know regex well enough to do this in one sweep
       colnames(pred$data) = stringr::str_replace(colnames(pred$data),"prob","")
       colnames(pred$data) = stringr::str_replace(colnames(pred$data),"[.]","")
-      forecasts[[i]] = pred$data
       .data[nrow(.data),] =pred$data$response
+      pred$data$response = NULL
+      forecasts[[i]] = pred$data
     } else if (pred$predict.type == "se"){
       forecasts[[i]] = pred$data
       .data[nrow(.data),] = pred$data$response

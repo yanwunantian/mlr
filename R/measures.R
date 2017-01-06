@@ -114,9 +114,9 @@ mase = makeMeasure(
     truth  = getPredictionTruth(pred)
     pred   = getPredictionResponse(pred)
     target = getTaskTargets(task)
-    top_error   = sum(abs(truth - pred))
-    bottom_diff = (Tn / (Tn - 1)) * sum(abs(diff(target)))
-    top_error / bottom_diff
+    top_error   = abs(truth - pred)
+    bottom_diff = mean(abs(diff(target)))
+    mean(top_error / bottom_diff)
   }
 )
 

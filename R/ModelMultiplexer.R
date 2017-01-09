@@ -127,3 +127,9 @@ isFailureModel.ModelMultiplexerModel = function(model) {
   NextMethod() || (!inherits(model$learner.model, "NoFeaturesModel") && isFailureModel(model$learner.model$next.model))
 }
 
+#' @export
+getClassWeightParam.ModelMultiplexer = function(learner) {
+  sl = getHyperPars(learner)$selected.learner
+  bl = learner$base.learners[[sl]]
+  getClassWeightParam(bl)
+}

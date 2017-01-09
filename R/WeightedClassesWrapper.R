@@ -65,7 +65,7 @@
 #' print(res)
 #' print(res$opt.path)
 makeWeightedClassesWrapper = function(learner, wcw.param = NULL, wcw.weight = 1) {
-  learner = checkLearner(learner, "classif")
+  learner = checkLearnerClassif(learner)
   pv = list()
 
   if (is.null(wcw.param))
